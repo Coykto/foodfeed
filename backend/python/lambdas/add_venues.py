@@ -9,6 +9,10 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def lambda_handler(event, context):
+
+
+
+
     try:
         logger.info('Event: {}'.format(event))
         logger.info('Context: {}'.format(context))

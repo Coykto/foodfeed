@@ -3,15 +3,13 @@ File: test_update_todo.py
 Description: Runs a test for our 'update_todo' Lambda
 """
 import os
-import sys
 import boto3
 import json
 import pytest
 from moto import mock_dynamodb
 
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../../../python/lambda"))
 
-from update_todo import lambda_handler
+from python.lambdas import update_todo
 
 @pytest.fixture(scope='function')
 def aws_credentials():
@@ -29,7 +27,7 @@ def test_initialization(aws_credentials):
 
     os.environ['DDB_TABLE'] = ''
 
-    payload = lambda_handler(event, context)
+    payload = update_todo.lambda_handler(event, context)
 
     assert payload['statusCode'] == 500
 
@@ -37,7 +35,7 @@ def test_empty_event(aws_credentials):
     event = {}
     context = None
 
-    payload = lambda_handler(event, context)
+    payload = update_todo.lambda_handler(event, context)
 
     assert payload['statusCode'] == 400
 
@@ -49,7 +47,7 @@ def test_empty_body(aws_credentials):
     }
     context = None
 
-    payload = lambda_handler(event, context)
+    payload = update_todo.lambda_handler(event, context)
 
     assert payload['statusCode'] == 400
 
@@ -62,7 +60,7 @@ def test_missing_keys(aws_credentials):
     }
     context = None
 
-    payload = lambda_handler(event, context)
+    payload = update_todo.lambda_handler(event, context)
 
     body = json.loads(payload['body'])
 
@@ -80,7 +78,7 @@ def test_valid_request(aws_credentials):
 
     create_mock_ddb_table()
 
-    payload = lambda_handler(event, context)
+    payload = update_todo.lambda_handler(event, context)
 
     assert payload['statusCode'] == 200
 

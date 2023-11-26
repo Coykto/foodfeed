@@ -122,3 +122,9 @@ This project leverage AWS CDK and therfore can easily be extended by updating AW
 ## Additional resources
 
 See the Amazon CodeCatalyst user guide for additional information on using the features and resources of Amazon CodeCatalyst.
+
+## Useful things
+After adding dependency to poetry, recreate requirements.txt with:
+```bash
+poetry run pip freeze > backend/requirements.txt
+```

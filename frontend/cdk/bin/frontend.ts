@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
+// @ts-ignore
 import * as cdk from 'aws-cdk-lib';
 import { FrontendStack } from '../lib/frontend-stack';
 

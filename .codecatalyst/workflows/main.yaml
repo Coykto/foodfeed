@@ -1,4 +1,5 @@
-Name: main_fullstack_workflow
+Name: main
+RunMode: SUPERSEDED
 SchemaVersion: "1.0"
 Triggers:
   - Type: PUSH
@@ -34,9 +35,16 @@ Actions:
     Configuration:
       Steps:
         - Run: cd backend
-        - Run: pip install -r requirements.txt
+        - Run: python --version
+        - Run: pip --version
+        - Run: pip install -r requirements-dev.txt
         - Run: pytest --junitxml=test_unit_results.xml --cov-report xml:test_unit_coverage.xml --cov=. tests/unit
         - Run: echo "No test coverage step"
+    Environment:
+      Connections:
+        - Role: CodeCatalystWorkflowDevelopmentRole-cosmos
+          Name: "347110856025"
+      Name: main_environment
   BackendCDKBootstrapAction:
     Identifier: aws/cdk-bootstrap@v1
     Inputs:
@@ -46,9 +54,9 @@ Actions:
       - BackendTest
       - BackendBuildAndPackage
     Configuration:
-      Region: us-west-1
+      Region: eu-west-1
     Environment:
-      Name: default_environment
+      Name: main_environment
       Connections:
         - Name: "347110856025"
           Role: CodeCatalystWorkflowDevelopmentRole-cosmos
@@ -62,10 +70,11 @@ Actions:
     Configuration:
       StackName: FoodFeedBackendStack
       CdkRootPath: backend/
-      Region: us-west-1
-      Context: '{"stack_name": "FoodFeedBackendStack"}'
+      CdkCliVersion: 2.110.0
+      Region: eu-west-1
+      Context: '{"stack_name": "FoodFeedBackendStack", "OPENAI_API_KEY": "${Secrets.OPENAI_API_KEY}"}'
     Environment:
-      Name: default_environment
+      Name: main_environment
       Connections:
         - Name: "347110856025"
           Role: CodeCatalystWorkflowDevelopmentRole-cosmos
@@ -118,9 +127,9 @@ Actions:
       - FrontendBuildAndPackage
       - FrontendTest
     Configuration:
-      Region: us-west-1
+      Region: eu-west-1
     Environment:
-      Name: default_environment
+      Name: main_environment
       Connections:
         - Name: "347110856025"
           Role: CodeCatalystWorkflowDevelopmentRole-cosmos
@@ -133,11 +142,11 @@ Actions:
       - FrontendCDKBootstrapAction
     Configuration:
       StackName: FoodFeedFrontendStack
-      Region: us-west-1
+      Region: eu-west-1
       Context: '{"stack_name": "FoodFeedFrontendStack", "api_domain": "${BackendCDKDeploy.ApiDomain}", "api_stage": "${BackendCDKDeploy.ApiStage}"}'
       CdkRootPath: frontend/cdk
     Environment:
-      Name: default_environment
+      Name: main_environment
       Connections:
         - Name: "347110856025"
           Role: CodeCatalystWorkflowDevelopmentRole-cosmos
