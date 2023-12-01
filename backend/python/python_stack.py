@@ -51,67 +51,81 @@ class PythonStack(Stack):
             use_unsigned_basic_auth=True
         )
 
-        food_s3 = s3.Bucket(self, 'FoodS3')
+        raw_venues_bucket = s3.Bucket(self, 'rawVenues')
+        processed_venues_bucket = s3.Bucket(self, 'processedVenues')
+        enriched_venues_bucket = s3.Bucket(self, 'enrichedVenues')  # TODO: enrichment process (read images)
 
         # ========================
         # Lambdas Definitions
         # ========================
-        layer_entry = path.join(os.getcwd(), 'python/layer')
+        layer_entry = path.join(os.getcwd(), 'python/lambdas')
         dependency_layer = PythonLayerVersion(
             self, 'DependencyLayer',
             compatible_runtimes=[lambda_.Runtime.PYTHON_3_9],
             entry=layer_entry,
             bundling=BundlingOptions(image=DockerImage.from_build(
-                path=layer_entry,
+                path=f"{layer_entry}/dependency",
                 file='Dockerfile'
             ))
         )
 
         get_venues = lambda_.Function(self,'getVenues',
             runtime=lambda_.Runtime.PYTHON_3_9,
-            code=lambda_.AssetCode.from_asset(path.join(os.getcwd(), 'python/lambdas')),
+            code=lambda_.AssetCode.from_asset(
+                path.join(os.getcwd(), 'python/lambdas'),
+                exclude=["**", "!get_venues.py"]
+            ),
             handler='get_venues.lambda_handler',
-            timeout=Duration.seconds(60),
+            timeout=Duration.seconds(10),
             environment={
                 "VENUES_ENDPOINT": "https://consumer-api.wolt.com/v1/pages/restaurants",
                 "LATITUDE": "41.72484116869996",
                 "LONGITUDE": "44.72807697951794",
-                "FOOD_BUCKET": food_s3.bucket_name,
+                "RAW_VENUES_BUCKET": raw_venues_bucket.bucket_name,
             },
             tracing=lambda_.Tracing.ACTIVE,
             layers=[dependency_layer]
         )
-        food_s3.grant_read_write(get_venues)
+        raw_venues_bucket.grant_read_write(get_venues)
 
         get_venue_items = lambda_.Function(self,'getVenueItems',
             runtime=lambda_.Runtime.PYTHON_3_9,
-            code=lambda_.AssetCode.from_asset(path.join(os.getcwd(), 'python/lambdas')),
+            code=lambda_.AssetCode.from_asset(
+                path.join(os.getcwd(), 'python/lambdas'),
+                exclude=["**", "!get_venue_items.py"]
+            ),
             handler='get_venue_items.lambda_handler',
+            timeout=Duration.seconds(60),
             environment={
                 "BASE_HOST": "https://restaurant-api.wolt.com/v4/venues/slug/",
                 "VENUE_CATEGORIES_URI": "{venue}/menu/data",
                 "VENUE_MENU_URI": "{venue}/menu/categories/slug/{category}",
-                "FOOD_BUCKET": food_s3.bucket_name,
+                "RAW_VENUES_BUCKET": raw_venues_bucket.bucket_name,
+                "PROCESSED_VENUES_BUCKET": processed_venues_bucket.bucket_name,
             },
             tracing=lambda_.Tracing.ACTIVE,
             layers=[dependency_layer]
         )
-        food_s3.grant_read(get_venue_items)
+        raw_venues_bucket.grant_read(get_venue_items)
+        processed_venues_bucket.grant_write(get_venue_items)
 
         embedd_and_upload = lambda_.Function(self,'embeddAndUpload',
             runtime=lambda_.Runtime.PYTHON_3_9,
-            code=lambda_.AssetCode.from_asset(path.join(os.getcwd(), 'python/lambdas')),
+            code=lambda_.AssetCode.from_asset(
+                path.join(os.getcwd(), 'python/lambdas'),
+                exclude=["**", "!get_venues.py"]
+            ),
             handler='embedd_and_upload.lambda_handler',
             environment={
                 "OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint,
                 "OPENAI_API_KEY": str(os.getenv("OPENAI_API_KEY", '')),
-                "FOOD_BUCKET": food_s3.bucket_name,
+                "PROCESSED_VENUES_BUCKET": processed_venues_bucket.bucket_name,
             },
             tracing=lambda_.Tracing.ACTIVE,
             layers=[dependency_layer]
         )
         food_search_domain.grant_read_write(embedd_and_upload)
-        food_s3.grant_read(get_venue_items)
+        processed_venues_bucket.grant_read(embedd_and_upload)
 
         # ========================
         # Step-Machine Definition:
@@ -159,43 +173,41 @@ class PythonStack(Stack):
 
         # ========================
         ddb = dynamodb.Table(self, 'TodosDB',
-                             partition_key=dynamodb.Attribute(
-                                 name='id',
-                                 type=dynamodb.AttributeType.STRING
-                             )
-                             )
+            partition_key=dynamodb.Attribute(
+                name='id',
+                type=dynamodb.AttributeType.STRING
+            )
+        )
 
         getTodos = lambda_.Function(self, 'getTodos',
-                                    runtime=lambda_.Runtime.PYTHON_3_10,
-                                    code=lambda_.AssetCode.from_asset(path.join(os.getcwd(), 'python/lambdas')),
-                                    handler='get_todos.lambda_handler',
-                                    environment={
-                                        "DDB_TABLE": ddb.table_name,
-                                        "SEARCH_ENDPOINT": food_search_domain.domain_endpoint
-                                    },
-                                    tracing=lambda_.Tracing.ACTIVE
-                                    )
+            runtime=lambda_.Runtime.PYTHON_3_10,
+            code=lambda_.AssetCode.from_asset(path.join(os.getcwd(), 'python/lambdas')),
+            handler='get_todos.lambda_handler',
+            environment={
+                "DDB_TABLE": ddb.table_name,
+                "SEARCH_ENDPOINT": food_search_domain.domain_endpoint
+            },
+            tracing=lambda_.Tracing.ACTIVE
+        )
         ddb.grant_read_data(getTodos)
 
         apiGateway = apigateway.RestApi(self, 'ApiGateway',
-                                        default_cors_preflight_options=apigateway.CorsOptions(
-                                            allow_credentials=True,
-                                            allow_origins=apigateway.Cors.ALL_ORIGINS,
-                                            allow_methods=["GET", "PUT", "DELETE", "OPTIONS"],
-                                            allow_headers=["Content-Type", "Authorization", "Content-Length",
-                                                           "X-Requested-With"]
-                                        )
-                                        )
+            default_cors_preflight_options=apigateway.CorsOptions(
+                allow_credentials=True,
+                allow_origins=apigateway.Cors.ALL_ORIGINS,
+                allow_methods=["GET", "PUT", "DELETE", "OPTIONS"],
+                allow_headers=["Content-Type", "Authorization", "Content-Length", "X-Requested-With"]
+            )
+        )
 
         api = apiGateway.root.add_resource('api')
 
         todos = api.add_resource('todos',
-                                 default_cors_preflight_options=apigateway.CorsOptions(
-                                     allow_credentials=True,
-                                     allow_origins=apigateway.Cors.ALL_ORIGINS,
-                                     allow_methods=["GET", "PUT", "DELETE", "OPTIONS"],
-                                     allow_headers=["Content-Type", "Authorization", "Content-Length",
-                                                    "X-Requested-With"]
-                                 )
-                                 )
+            default_cors_preflight_options=apigateway.CorsOptions(
+                allow_credentials=True,
+                allow_origins=apigateway.Cors.ALL_ORIGINS,
+                allow_methods=["GET", "PUT", "DELETE", "OPTIONS"],
+                allow_headers=["Content-Type", "Authorization", "Content-Length", "X-Requested-With"]
+            )
+        )
         todos.add_method('GET', apigateway.LambdaIntegration(getTodos))

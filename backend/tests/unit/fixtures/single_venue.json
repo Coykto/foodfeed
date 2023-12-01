@@ -1,0 +1,114 @@
+{
+    "filtering": {
+        "filters": [
+            {
+                "id": "primary",
+                "values": [
+                    "salad",
+                    "pizza",
+                    "european",
+                    "georgian"
+                ]
+            },
+            {
+                "id": "price-range",
+                "values": [
+                    "price-range-1"
+                ]
+            },
+            {
+                "id": "wolt-plus",
+                "values": [
+                    "woltplus"
+                ]
+            }
+        ]
+    },
+    "image": {
+        "blurhash": "j4BEdQTd049CIPvcdYes0bTc;F8P",
+        "url": "https://prod-wolt-venue-images-cdn.wolt.com/5f6c516b0efbe983b323c794/c8d82c26-695e-11ed-bf7b-f23130ce5ea5_c2cc59a4_fe3c_11ea_9dd7_7eeee113dcd1_img_0821_copy.jpg"
+    },
+    "link": {
+        "selected_delivery_method": "homedelivery",
+        "target": "5f6c516b0efbe983b323c794",
+        "target_sort": "delivers-to",
+        "target_title": "",
+        "title": "",
+        "type": "venue-id",
+        "venue_mainimage_blurhash": "j4BE9PTd049BIPvcdYes0bTc;G8P"
+    },
+    "sorting": {
+        "sortables": [
+            {
+                "id": "delivery-price",
+                "value": 0
+            },
+            {
+                "id": "rating",
+                "value": 164
+            },
+            {
+                "id": "delivery-estimate",
+                "value": 355
+            },
+            {
+                "id": "distance",
+                "value": 270
+            },
+            {
+                "id": "preparation-estimate",
+                "value": 49
+            }
+        ]
+    },
+    "telemetry_venue_badges": [
+        "promotions"
+    ],
+    "template": "venue-large",
+    "title": "Tasty",
+    "track_id": "venue-tasty",
+    "venue": {
+        "address": "37 Meliton And Andria Balanchivadze St",
+        "badges": [],
+        "badges_v2": [],
+        "categories": [],
+        "city": "",
+        "country": "GEO",
+        "currency": "GEL",
+        "delivers": true,
+        "delivery_price": "GEL0.00",
+        "delivery_price_highlight": true,
+        "delivery_price_int": 0,
+        "estimate": 60,
+        "franchise": "",
+        "icon": "wolt-plus",
+        "id": "5f6c516b0efbe983b323c794",
+        "location": [
+            44.772416476538844,
+            41.71634179389325
+        ],
+        "name": "Tasty",
+        "online": true,
+        "price_range": 1,
+        "product_line": "restaurant",
+        "promotions": [
+            {
+                "icon": "coupon-fill",
+                "text": "New users get 14 days of free delivery!",
+                "variant": "discount"
+            }
+        ],
+        "rating": {
+            "rating": 3,
+            "score": 9.0
+        },
+        "short_description": "European Georgian Cuisine",
+        "show_wolt_plus": true,
+        "slug": "tasty",
+        "tags": [
+            "european",
+            "georgian",
+            "khachapuri"
+        ]
+    }
+}
