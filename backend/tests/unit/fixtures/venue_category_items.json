@@ -1,0 +1,783 @@
+{
+    "categories": [
+        {
+            "description": "GARNISH & SNACKS",
+            "id": "6566dedda3d5845910ef08c1",
+            "image": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee676c6c-329a-11ee-874d-7676230b78a4_french_20fries_20large.jpg",
+            "image_blurhash": "UHNTE$s+%%Io?Z-;N3t70Mt8MIoK02WBx8M{",
+            "item_count": 8,
+            "layout": "grouped",
+            "name": "GARNISH & SNACKS",
+            "parent_category_id": null,
+            "slug": "garnish-snacks-7"
+        }
+    ],
+    "country_config": {
+        "how_search_works_url": null,
+        "should_display_original_price_for_unit_price": false,
+        "should_display_price_by_subtracting_deposit": false
+    },
+    "disclaimers": {
+        "caffeine": null
+    },
+    "extra_info_popup": null,
+    "extra_info_popups": [],
+    "id": "5e748af6ff58f9e4b6a20ee3",
+    "items": [
+        {
+            "advertising_badge": null,
+            "advertising_metadata": null,
+            "alcohol_percentage": 0,
+            "allowed_delivery_methods": [
+                "homedelivery"
+            ],
+            "barcode_gtin": null,
+            "baseprice": 650,
+            "brand_id": null,
+            "caffeine_content": null,
+            "category": "6566dedda3d5845910ef08c1",
+            "checksum": "1e66029522c1b9984a618d1ba67995c1",
+            "deposit": null,
+            "deposit_type": null,
+            "description": "Even more taste! Our big chunks have kept even more of the way your favorite French fries taste. It is just the way you like  with tasty crispy crust and soft crumby inside. The most favorite pleasure!",
+            "dietary_preferences": [],
+            "disabled_info": null,
+            "enabled": true,
+            "exclude_from_discounts": false,
+            "has_extra_info": false,
+            "id": "652422d8db410d44e5d3b17e",
+            "image": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee676c6c-329a-11ee-874d-7676230b78a4_french_20fries_20large.jpg",
+            "image_blurhash": "UHNTE$s+%%Io?Z-;N3t70Mt8MIoK02WBx8M{",
+            "images": [
+                {
+                    "blurhash": "UHNTE$s+%%Io?Z-;N3t70Mt8MIoK02WBx8M{",
+                    "url": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee676c6c-329a-11ee-874d-7676230b78a4_french_20fries_20large.jpg"
+                }
+            ],
+            "is_cutlery": false,
+            "lowest_historical_price": null,
+            "mandatory_warnings": [],
+            "max_quantity_per_purchase": null,
+            "min_quantity_per_purchase": null,
+            "name": "BASKET FRIES",
+            "no_contact_delivery_allowed": true,
+            "options": [],
+            "original_price": null,
+            "quantity_left": null,
+            "quantity_left_visible": false,
+            "restrictions": null,
+            "return_policy": null,
+            "sell_by_weight_config": null,
+            "tags": [],
+            "times": [
+                {
+                    "available_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "available_end_date": 86400000,
+                    "available_start_date": 0,
+                    "visible_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "visible_end_date": 86400000,
+                    "visible_start_date": 0
+                }
+            ],
+            "type": "default",
+            "unformatted_unit_price": null,
+            "unit_info": null,
+            "unit_price": null,
+            "validity": null,
+            "vat_percentage": 18,
+            "wolt_plus_only": false
+        },
+        {
+            "advertising_badge": null,
+            "advertising_metadata": null,
+            "alcohol_percentage": 0,
+            "allowed_delivery_methods": [
+                "homedelivery"
+            ],
+            "barcode_gtin": null,
+            "baseprice": 450,
+            "brand_id": null,
+            "caffeine_content": null,
+            "category": "6566dedda3d5845910ef08c1",
+            "checksum": "d13bfdf1391b50cea08b9f2eed518484",
+            "deposit": null,
+            "deposit_type": null,
+            "description": "Even more taste! Our big chunks have kept even more of the way your favorite French fries taste. It is just the way you like  with tasty crispy crust and soft crumby inside. The most favorite pleasure!",
+            "dietary_preferences": [],
+            "disabled_info": null,
+            "enabled": true,
+            "exclude_from_discounts": false,
+            "has_extra_info": false,
+            "id": "652422d8db410d44e5d3b180",
+            "image": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee6931e6-329a-11ee-874d-7676230b78a4_french_20fries_20medium.jpg",
+            "image_blurhash": "UCN,bys+YRIV?a?bNhxb00tRU[s.00Rjn0M_",
+            "images": [
+                {
+                    "blurhash": "UCN,bys+YRIV?a?bNhxb00tRU[s.00Rjn0M_",
+                    "url": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee6931e6-329a-11ee-874d-7676230b78a4_french_20fries_20medium.jpg"
+                }
+            ],
+            "is_cutlery": false,
+            "lowest_historical_price": null,
+            "mandatory_warnings": [],
+            "max_quantity_per_purchase": null,
+            "min_quantity_per_purchase": null,
+            "name": "FRENCH FRIES M",
+            "no_contact_delivery_allowed": true,
+            "options": [],
+            "original_price": null,
+            "quantity_left": null,
+            "quantity_left_visible": false,
+            "restrictions": null,
+            "return_policy": null,
+            "sell_by_weight_config": null,
+            "tags": [],
+            "times": [
+                {
+                    "available_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "available_end_date": 86400000,
+                    "available_start_date": 0,
+                    "visible_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "visible_end_date": 86400000,
+                    "visible_start_date": 0
+                }
+            ],
+            "type": "default",
+            "unformatted_unit_price": null,
+            "unit_info": null,
+            "unit_price": null,
+            "validity": null,
+            "vat_percentage": 0,
+            "wolt_plus_only": false
+        },
+        {
+            "advertising_badge": null,
+            "advertising_metadata": null,
+            "alcohol_percentage": 0,
+            "allowed_delivery_methods": [
+                "homedelivery"
+            ],
+            "barcode_gtin": null,
+            "baseprice": 320,
+            "brand_id": null,
+            "caffeine_content": null,
+            "category": "6566dedda3d5845910ef08c1",
+            "checksum": "de67c09659e2f3a5dd2e69ae89cd3513",
+            "deposit": null,
+            "deposit_type": null,
+            "description": "Even more taste! Our big chunks have kept even more of the way your favorite French fries taste. It is just the way you like  with tasty crispy crust and soft crumby inside. The most favorite pleasure!",
+            "dietary_preferences": [],
+            "disabled_info": null,
+            "enabled": true,
+            "exclude_from_discounts": false,
+            "has_extra_info": false,
+            "id": "652422d8db410d44e5d3b182",
+            "image": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee6b0994-329a-11ee-874d-7676230b78a4_french_20fries_20small.jpg",
+            "image_blurhash": "U9N^3iRiTfoM_N_NN3of00%NL}Ri00M_$tRP",
+            "images": [
+                {
+                    "blurhash": "U9N^3iRiTfoM_N_NN3of00%NL}Ri00M_$tRP",
+                    "url": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee6b0994-329a-11ee-874d-7676230b78a4_french_20fries_20small.jpg"
+                }
+            ],
+            "is_cutlery": false,
+            "lowest_historical_price": null,
+            "mandatory_warnings": [],
+            "max_quantity_per_purchase": null,
+            "min_quantity_per_purchase": null,
+            "name": "FRENCH FRIES S",
+            "no_contact_delivery_allowed": true,
+            "options": [],
+            "original_price": null,
+            "quantity_left": null,
+            "quantity_left_visible": false,
+            "restrictions": null,
+            "return_policy": null,
+            "sell_by_weight_config": null,
+            "tags": [],
+            "times": [
+                {
+                    "available_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "available_end_date": 86400000,
+                    "available_start_date": 0,
+                    "visible_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "visible_end_date": 86400000,
+                    "visible_start_date": 0
+                }
+            ],
+            "type": "default",
+            "unformatted_unit_price": null,
+            "unit_info": null,
+            "unit_price": null,
+            "validity": null,
+            "vat_percentage": 0,
+            "wolt_plus_only": false
+        },
+        {
+            "advertising_badge": null,
+            "advertising_metadata": null,
+            "alcohol_percentage": 0,
+            "allowed_delivery_methods": [
+                "homedelivery"
+            ],
+            "barcode_gtin": null,
+            "baseprice": 390,
+            "brand_id": null,
+            "caffeine_content": null,
+            "category": "6566dedda3d5845910ef08c1",
+            "checksum": "5f93d62f166a5c040cc34b29f7f42771",
+            "deposit": null,
+            "deposit_type": null,
+            "description": "MEXICAN FRIES S",
+            "dietary_preferences": [],
+            "disabled_info": null,
+            "enabled": true,
+            "exclude_from_discounts": false,
+            "has_extra_info": false,
+            "id": "652422d8db410d44e5d3b184",
+            "image": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee757fb4-329a-11ee-b0bc-8e9bb90a0cff_mexican_20potatoes_20small.jpg",
+            "image_blurhash": "UFNACsxF?^E2_3-;Ipt70Ko#DOxG00V@$KM{",
+            "images": [
+                {
+                    "blurhash": "UFNACsxF?^E2_3-;Ipt70Ko#DOxG00V@$KM{",
+                    "url": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee757fb4-329a-11ee-b0bc-8e9bb90a0cff_mexican_20potatoes_20small.jpg"
+                }
+            ],
+            "is_cutlery": false,
+            "lowest_historical_price": null,
+            "mandatory_warnings": [],
+            "max_quantity_per_purchase": null,
+            "min_quantity_per_purchase": null,
+            "name": "MEXICAN FRIES S",
+            "no_contact_delivery_allowed": true,
+            "options": [],
+            "original_price": null,
+            "quantity_left": null,
+            "quantity_left_visible": false,
+            "restrictions": null,
+            "return_policy": null,
+            "sell_by_weight_config": null,
+            "tags": [],
+            "times": [
+                {
+                    "available_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "available_end_date": 86400000,
+                    "available_start_date": 0,
+                    "visible_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "visible_end_date": 86400000,
+                    "visible_start_date": 0
+                }
+            ],
+            "type": "default",
+            "unformatted_unit_price": null,
+            "unit_info": null,
+            "unit_price": null,
+            "validity": null,
+            "vat_percentage": 18,
+            "wolt_plus_only": false
+        },
+        {
+            "advertising_badge": null,
+            "advertising_metadata": null,
+            "alcohol_percentage": 0,
+            "allowed_delivery_methods": [
+                "homedelivery"
+            ],
+            "barcode_gtin": null,
+            "baseprice": 520,
+            "brand_id": null,
+            "caffeine_content": null,
+            "category": "6566dedda3d5845910ef08c1",
+            "checksum": "f41ab5cbda9bf9cf169c243dacc4d698",
+            "deposit": null,
+            "deposit_type": null,
+            "description": "MEXICAN FRIES M",
+            "dietary_preferences": [],
+            "disabled_info": null,
+            "enabled": true,
+            "exclude_from_discounts": false,
+            "has_extra_info": false,
+            "id": "652422d8db410d44e5d3b186",
+            "image": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee744a36-329a-11ee-b0bc-8e9bb90a0cff_mexican_20potatoes_20medium.jpg",
+            "image_blurhash": "UKN0k;s,?^Io?H%MNyxu0dozH?sV0KaeibM{",
+            "images": [
+                {
+                    "blurhash": "UKN0k;s,?^Io?H%MNyxu0dozH?sV0KaeibM{",
+                    "url": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee744a36-329a-11ee-b0bc-8e9bb90a0cff_mexican_20potatoes_20medium.jpg"
+                }
+            ],
+            "is_cutlery": false,
+            "lowest_historical_price": null,
+            "mandatory_warnings": [],
+            "max_quantity_per_purchase": null,
+            "min_quantity_per_purchase": null,
+            "name": "MEXICAN FRIES M",
+            "no_contact_delivery_allowed": true,
+            "options": [],
+            "original_price": null,
+            "quantity_left": null,
+            "quantity_left_visible": false,
+            "restrictions": null,
+            "return_policy": null,
+            "sell_by_weight_config": null,
+            "tags": [],
+            "times": [
+                {
+                    "available_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "available_end_date": 86400000,
+                    "available_start_date": 0,
+                    "visible_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "visible_end_date": 86400000,
+                    "visible_start_date": 0
+                }
+            ],
+            "type": "default",
+            "unformatted_unit_price": null,
+            "unit_info": null,
+            "unit_price": null,
+            "validity": null,
+            "vat_percentage": 18,
+            "wolt_plus_only": false
+        },
+        {
+            "advertising_badge": null,
+            "advertising_metadata": null,
+            "alcohol_percentage": 0,
+            "allowed_delivery_methods": [
+                "homedelivery"
+            ],
+            "barcode_gtin": null,
+            "baseprice": 810,
+            "brand_id": null,
+            "caffeine_content": null,
+            "category": "6566dedda3d5845910ef08c1",
+            "checksum": "ab7cf415c28af6baeec0cfd35f253b1b",
+            "deposit": null,
+            "deposit_type": null,
+            "description": "CHEESE PILLOWS 7 PC",
+            "dietary_preferences": [],
+            "disabled_info": null,
+            "enabled": true,
+            "exclude_from_discounts": false,
+            "has_extra_info": false,
+            "id": "652422d8db410d44e5d3b188",
+            "image": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee6c7590-329a-11ee-874d-7676230b78a4_cheese_20pillows_207_20pcs.jpg",
+            "image_blurhash": "UON,MJxUX.Iu.Tx]R5xZ0fbde8s+00t5tmIV",
+            "images": [
+                {
+                    "blurhash": "UON,MJxUX.Iu.Tx]R5xZ0fbde8s+00t5tmIV",
+                    "url": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee6c7590-329a-11ee-874d-7676230b78a4_cheese_20pillows_207_20pcs.jpg"
+                }
+            ],
+            "is_cutlery": false,
+            "lowest_historical_price": null,
+            "mandatory_warnings": [],
+            "max_quantity_per_purchase": null,
+            "min_quantity_per_purchase": null,
+            "name": "CHEESE PILLOWS 7 PC",
+            "no_contact_delivery_allowed": true,
+            "options": [],
+            "original_price": null,
+            "quantity_left": null,
+            "quantity_left_visible": false,
+            "restrictions": null,
+            "return_policy": null,
+            "sell_by_weight_config": null,
+            "tags": [],
+            "times": [
+                {
+                    "available_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "available_end_date": 86400000,
+                    "available_start_date": 0,
+                    "visible_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "visible_end_date": 86400000,
+                    "visible_start_date": 0
+                }
+            ],
+            "type": "default",
+            "unformatted_unit_price": null,
+            "unit_info": null,
+            "unit_price": null,
+            "validity": null,
+            "vat_percentage": 18,
+            "wolt_plus_only": false
+        },
+        {
+            "advertising_badge": null,
+            "advertising_metadata": null,
+            "alcohol_percentage": 0,
+            "allowed_delivery_methods": [
+                "homedelivery"
+            ],
+            "barcode_gtin": null,
+            "baseprice": 610,
+            "brand_id": null,
+            "caffeine_content": null,
+            "category": "6566dedda3d5845910ef08c1",
+            "checksum": "1d82c6e9de6843b50667623e5e633a22",
+            "deposit": null,
+            "deposit_type": null,
+            "description": "CHEESE PILLOWS 5 PC",
+            "dietary_preferences": [],
+            "disabled_info": null,
+            "enabled": true,
+            "exclude_from_discounts": false,
+            "has_extra_info": false,
+            "id": "652422d8db410d44e5d3b18a",
+            "image": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee6e2f70-329a-11ee-874d-7676230b78a4_cheese_20pillows_205_20pcs.jpg",
+            "image_blurhash": "UMN,Vi%1O@E2.T%gMxsl0LRjn3%L00s8x^I@",
+            "images": [
+                {
+                    "blurhash": "UMN,Vi%1O@E2.T%gMxsl0LRjn3%L00s8x^I@",
+                    "url": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee6e2f70-329a-11ee-874d-7676230b78a4_cheese_20pillows_205_20pcs.jpg"
+                }
+            ],
+            "is_cutlery": false,
+            "lowest_historical_price": null,
+            "mandatory_warnings": [],
+            "max_quantity_per_purchase": null,
+            "min_quantity_per_purchase": null,
+            "name": "CHEESE PILLOWS 5 PC",
+            "no_contact_delivery_allowed": true,
+            "options": [],
+            "original_price": null,
+            "quantity_left": null,
+            "quantity_left_visible": false,
+            "restrictions": null,
+            "return_policy": null,
+            "sell_by_weight_config": null,
+            "tags": [],
+            "times": [
+                {
+                    "available_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "available_end_date": 86400000,
+                    "available_start_date": 0,
+                    "visible_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "visible_end_date": 86400000,
+                    "visible_start_date": 0
+                }
+            ],
+            "type": "default",
+            "unformatted_unit_price": null,
+            "unit_info": null,
+            "unit_price": null,
+            "validity": null,
+            "vat_percentage": 18,
+            "wolt_plus_only": false
+        },
+        {
+            "advertising_badge": null,
+            "advertising_metadata": null,
+            "alcohol_percentage": 0,
+            "allowed_delivery_methods": [
+                "homedelivery"
+            ],
+            "barcode_gtin": null,
+            "baseprice": 450,
+            "brand_id": null,
+            "caffeine_content": null,
+            "category": "6566dedda3d5845910ef08c1",
+            "checksum": "eeb1c6235ad48e9836b613e6865b8339",
+            "deposit": null,
+            "deposit_type": null,
+            "description": "CHEESE PILLOWS 3 PC",
+            "dietary_preferences": [],
+            "disabled_info": null,
+            "enabled": true,
+            "exclude_from_discounts": false,
+            "has_extra_info": false,
+            "id": "652422d8db410d44e5d3b18c",
+            "image": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee72e312-329a-11ee-b0bc-8e9bb90a0cff_cheese_20pillows_203_20pcs.jpg",
+            "image_blurhash": "UIN]|SxVTLIr.T-;Mxs,01WZVD%000jD%gIq",
+            "images": [
+                {
+                    "blurhash": "UIN]|SxVTLIr.T-;Mxs,01WZVD%000jD%gIq",
+                    "url": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee72e312-329a-11ee-b0bc-8e9bb90a0cff_cheese_20pillows_203_20pcs.jpg"
+                }
+            ],
+            "is_cutlery": false,
+            "lowest_historical_price": null,
+            "mandatory_warnings": [],
+            "max_quantity_per_purchase": null,
+            "min_quantity_per_purchase": null,
+            "name": "CHEESE PILLOWS 3 PC",
+            "no_contact_delivery_allowed": true,
+            "options": [],
+            "original_price": null,
+            "quantity_left": null,
+            "quantity_left_visible": false,
+            "restrictions": null,
+            "return_policy": null,
+            "sell_by_weight_config": null,
+            "tags": [],
+            "times": [
+                {
+                    "available_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "available_end_date": 86400000,
+                    "available_start_date": 0,
+                    "visible_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "visible_end_date": 86400000,
+                    "visible_start_date": 0
+                }
+            ],
+            "type": "default",
+            "unformatted_unit_price": null,
+            "unit_info": null,
+            "unit_price": null,
+            "validity": null,
+            "vat_percentage": 18,
+            "wolt_plus_only": false
+        }
+    ],
+    "language": "en",
+    "languages": [
+        {
+            "autotranslated": false,
+            "language": "ka",
+            "name": "Georgian",
+            "primary": true
+        },
+        {
+            "autotranslated": true,
+            "language": "en",
+            "name": "English",
+            "primary": false
+        },
+        {
+            "autotranslated": true,
+            "language": "de",
+            "name": "German",
+            "primary": false
+        },
+        {
+            "autotranslated": true,
+            "language": "fr",
+            "name": "French",
+            "primary": false
+        },
+        {
+            "autotranslated": true,
+            "language": "ru",
+            "name": "Russian",
+            "primary": false
+        }
+    ],
+    "name": "KFC City Mall Kavtaradze",
+    "options": [],
+    "recommendations": [
+        {
+            "item": "652422d8db410d44e5d3b18e",
+            "options": []
+        }
+    ],
+    "recommended_items": [
+        {
+            "advertising_badge": null,
+            "advertising_metadata": null,
+            "alcohol_percentage": 0,
+            "allowed_delivery_methods": [
+                "homedelivery"
+            ],
+            "barcode_gtin": null,
+            "baseprice": 160,
+            "brand_id": null,
+            "caffeine_content": null,
+            "category": "6566dedda3d5845910ef08c2",
+            "checksum": "240610796fe068868b85f6a6f199b2f7",
+            "deposit": null,
+            "deposit_type": null,
+            "description": "CHEESE SAUCE",
+            "dietary_preferences": [],
+            "disabled_info": null,
+            "enabled": true,
+            "exclude_from_discounts": false,
+            "has_extra_info": false,
+            "id": "652422d8db410d44e5d3b18e",
+            "image": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee76aa24-329a-11ee-b0bc-8e9bb90a0cff_cheese_20sauce.jpg",
+            "image_blurhash": "UDOWThod9iRP?w?bM|t700t7-Loz00V@xVM{",
+            "images": [
+                {
+                    "blurhash": "UDOWThod9iRP?w?bM|t700t7-Loz00V@xVM{",
+                    "url": "https://wolt-menu-images-cdn.wolt.com/menu-images/64217b02d457450b979bb300/ee76aa24-329a-11ee-b0bc-8e9bb90a0cff_cheese_20sauce.jpg"
+                }
+            ],
+            "is_cutlery": false,
+            "lowest_historical_price": null,
+            "mandatory_warnings": [],
+            "max_quantity_per_purchase": null,
+            "min_quantity_per_purchase": null,
+            "name": "CHEESE SAUCE",
+            "no_contact_delivery_allowed": true,
+            "options": [],
+            "original_price": null,
+            "quantity_left": null,
+            "quantity_left_visible": false,
+            "restrictions": null,
+            "return_policy": null,
+            "sell_by_weight_config": null,
+            "tags": [],
+            "times": [
+                {
+                    "available_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "available_end_date": 86400000,
+                    "available_start_date": 0,
+                    "visible_days_of_week": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "visible_end_date": 86400000,
+                    "visible_start_date": 0
+                }
+            ],
+            "type": "default",
+            "unformatted_unit_price": null,
+            "unit_info": null,
+            "unit_price": null,
+            "validity": null,
+            "vat_percentage": 0,
+            "wolt_plus_only": false
+        }
+    ],
+    "search_id": null
+}

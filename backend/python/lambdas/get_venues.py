@@ -15,7 +15,7 @@ def lambda_handler(event, context):
     endpoint = os.getenv('VENUES_ENDPOINT')
     latitude = float(os.getenv('LATITUDE', 0.0))
     longitude = float(os.getenv('LONGITUDE', 0.0))
-    bucket_name = os.getenv('FOOD_BUCKET')
+    bucket_name = os.getenv('RAW_VENUES_BUCKET')
 
     country = "geo"
     city = "tbilisi"

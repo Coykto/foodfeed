@@ -2,12 +2,16 @@ import json
 
 import pytest
 from unittest.mock import Mock
+
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../../../python/lambdas"))
 from python.lambdas.get_venues import lambda_handler
 
 # Mock response from requests.get
 @pytest.fixture
 def mock_response():
-    return json.load(open("tests/unit/fixtures/get_venues_response.json", "r"))
+    return json.load(open("tests/unit/fixtures/all_venues.json", "r"))
 
 # Mock event and context
 @pytest.fixture

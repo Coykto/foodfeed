@@ -7,7 +7,10 @@ import boto3
 import pytest
 from moto import mock_dynamodb
 
-from python.lambdas import delete_todo
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../../../python/lambdas"))
+from python.lambdas.delete_todo import lambda_handler
 
 
 @pytest.fixture(scope='function')
@@ -26,7 +29,7 @@ def test_initialization(aws_credentials):
 
     os.environ['DDB_TABLE'] = ''
 
-    payload = delete_todo.lambda_handler(event, context)
+    payload = lambda_handler(event, context)
 
     assert payload['statusCode'] == 500
 
@@ -34,7 +37,7 @@ def test_empty_event(aws_credentials):
     event = {}
     context = None
 
-    payload = delete_todo.lambda_handler(event, context)
+    payload = lambda_handler(event, context)
 
     assert payload['statusCode'] == 400
 
@@ -49,7 +52,7 @@ def test_valid_request(aws_credentials):
 
     create_mock_ddb_table()
 
-    payload = delete_todo.lambda_handler(event, context)
+    payload = lambda_handler(event, context)
 
     assert payload['statusCode'] == 204
 
