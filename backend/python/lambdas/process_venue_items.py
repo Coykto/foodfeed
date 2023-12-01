@@ -105,3 +105,8 @@ def lambda_handler(event, context):
         Bucket=PROCESSED_VENUES_BUCKET,
         Key=f"{country}/{city}/restaurant/{venue_slug}.json"
     )
+
+    return {
+        "statusCode": 200,
+        "body": {"s": venue_slug}
+    }

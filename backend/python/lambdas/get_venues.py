@@ -32,7 +32,7 @@ def lambda_handler(event, context):
             }
         ).json()
 
-        venues = venues_data["sections"][1]["items"][:10]
+        venues = venues_data["sections"][1]["items"]
 
         for venue in venues:
             s3_client.put_object(

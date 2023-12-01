@@ -88,13 +88,13 @@ class PythonStack(Stack):
         )
         raw_venues_bucket.grant_read_write(get_venues)
 
-        get_venue_items = lambda_.Function(self,'getVenueItems',
+        process_venue_items = lambda_.Function(self,'getVenueItems',
             runtime=lambda_.Runtime.PYTHON_3_9,
             code=lambda_.AssetCode.from_asset(
                 path.join(os.getcwd(), 'python/lambdas'),
-                exclude=["**", "!get_venue_items.py"]
+                exclude=["**", "!process_venue_items.py"]
             ),
-            handler='get_venue_items.lambda_handler',
+            handler='process_venue_items.lambda_handler',
             timeout=Duration.seconds(60),
             environment={
                 "BASE_HOST": "https://restaurant-api.wolt.com/v4/venues/slug/",
@@ -106,14 +106,14 @@ class PythonStack(Stack):
             tracing=lambda_.Tracing.ACTIVE,
             layers=[dependency_layer]
         )
-        raw_venues_bucket.grant_read(get_venue_items)
-        processed_venues_bucket.grant_write(get_venue_items)
+        raw_venues_bucket.grant_read(process_venue_items)
+        processed_venues_bucket.grant_write(process_venue_items)
 
         embedd_and_upload = lambda_.Function(self,'embeddAndUpload',
             runtime=lambda_.Runtime.PYTHON_3_9,
             code=lambda_.AssetCode.from_asset(
                 path.join(os.getcwd(), 'python/lambdas'),
-                exclude=["**", "!get_venues.py"]
+                exclude=["**", "!embedd_and_upload.py"]
             ),
             handler='embedd_and_upload.lambda_handler',
             environment={
@@ -138,19 +138,20 @@ class PythonStack(Stack):
 
         process_venue_task = tasks.LambdaInvoke(
             self, "Process Venue And Save Items",
-            lambda_function=get_venue_items,
-            input_path="$"  # Pass each object to get_venue_items
+            lambda_function=process_venue_items,
+            input_path="$"  # Pass each object to process_venue_items
         )
 
         process_each_venue_task = sfn.Map(
             self, "Process Each Venue",
-            max_concurrency=3,  # Adjust as needed
+            max_concurrency=10,  # Adjust as needed
             items_path="$.Payload"  # Adjust according to your Lambda's output
         ).iterator(process_venue_task)
 
         embedd_and_upload_task = tasks.LambdaInvoke(
             self, "Embedd And Upload Items",
             lambda_function=embedd_and_upload,
+            input_path="$"
         )
 
         # Define the State Machine
@@ -211,3 +212,15 @@ class PythonStack(Stack):
             )
         )
         todos.add_method('GET', apigateway.LambdaIntegration(getTodos))
+
+        CfnOutput(self, ApiGatewayEndpointStackOutput,
+            value=apiGateway.url
+        )
+
+        CfnOutput(self, ApiGatewayDomainStackOutput,
+            value=apiGateway.url.split('/')[2]
+        )
+
+        CfnOutput(self, ApiGatewayStageStackOutput,
+            value=apiGateway.deployment_stage.stage_name
+        )
