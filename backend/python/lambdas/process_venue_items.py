@@ -106,7 +106,4 @@ def lambda_handler(event, context):
         Key=f"{country}/{city}/restaurant/{venue_slug}.json"
     )
 
-    return {
-        "statusCode": 200,
-        "body": {"s": venue_slug}
-    }
+    return {"s": venue_slug}

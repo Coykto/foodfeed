@@ -145,7 +145,9 @@ class PythonStack(Stack):
         process_each_venue_task = sfn.Map(
             self, "Process Each Venue",
             max_concurrency=10,  # Adjust as needed
-            items_path="$.Payload"  # Adjust according to your Lambda's output
+            items_path="$.Payload",  # Adjust according to your Lambda's output
+            result_selector={"s.$": "$[*].Payload"},
+            output_path="$.s"
         ).iterator(process_venue_task)
 
         embedd_and_upload_task = tasks.LambdaInvoke(
