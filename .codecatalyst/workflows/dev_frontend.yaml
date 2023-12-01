@@ -1,0 +1,80 @@
+Name: dev_frontend
+RunMode: SUPERSEDED
+SchemaVersion: "1.0"
+Triggers:
+  - Type: PUSH
+    Branches:
+      - frontend\/.*
+Actions:
+  FrontendBuildAndPackage:
+    Identifier: aws/build@v1
+    DependsOn:
+      - BackendCDKDeploy
+    Inputs:
+      Sources:
+        - WorkflowSource
+    Outputs:
+      Artifacts:
+        - Name: frontend
+          Files:
+            - "**/*"
+    Configuration:
+      Steps:
+        - Run: cd frontend
+        - Run: npm install
+        - Run: echo "REACT_APP_SERVICE_URL=/api/todos" > ".env"
+        - Run: npm run build
+        - Run: mkdir -p cdk/frontend/build
+        - Run: mv build/* cdk/frontend/build/
+  FrontendTest:
+    Identifier: aws/managed-test@v1
+    Inputs:
+      Sources:
+        - WorkflowSource
+    Outputs:
+      AutoDiscoverReports:
+        IncludePaths:
+          - frontend/**/*.xml
+        ExcludePaths:
+          - frontend/node_modules/**/*
+        ReportNamePrefix: AutoDiscovered
+        Enabled: true
+        SuccessCriteria:
+          PassRate: 100
+    Configuration:
+      Steps:
+        - Run: cd frontend
+        - Run: npm install
+        - Run: npm test -- --coverage --watchAll=false;
+  FrontendCDKBootstrapAction:
+    Identifier: aws/cdk-bootstrap@v1
+    Inputs:
+      Artifacts:
+        - frontend
+    DependsOn:
+      - FrontendBuildAndPackage
+      - FrontendTest
+    Configuration:
+      Region: eu-west-1
+    Environment:
+      Name: dev_environment
+      Connections:
+        - Name: "347110856025"
+          Role: CodeCatalystWorkflowDevelopmentRole-cosmos
+  FrontendCDKDeploy:
+    Identifier: aws/cdk-deploy@v1
+    Inputs:
+      Artifacts:
+        - frontend
+    DependsOn:
+      - FrontendCDKBootstrapAction
+    Configuration:
+      StackName: FoodFeedFrontendStack
+      Region: eu-west-1
+      Context: '{"stack_name": "FoodFeedFrontendStack", "api_domain": "${BackendCDKDeploy.ApiDomain}", "api_stage": "${BackendCDKDeploy.ApiStage}"}'
+      CdkRootPath: frontend/cdk
+    Environment:
+      Name: dev_environment
+      Connections:
+        - Name: "347110856025"
+          Role: CodeCatalystWorkflowDevelopmentRole-cosmos

@@ -1,0 +1,80 @@
+Name: dev_backend
+RunMode: SUPERSEDED
+SchemaVersion: "1.0"
+Triggers:
+  - Type: PUSH
+    Branches:
+      - backend\/.*
+Actions:
+  BackendBuildAndPackage:
+    Identifier: aws/build@v1
+    Inputs:
+      Sources:
+        - WorkflowSource
+    Outputs:
+      Artifacts:
+        - Name: backend
+          Files:
+            - "**/*"
+    Configuration:
+      Steps:
+        - Run: echo "Building Backend Artifacts..."
+  BackendTest:
+    Identifier: aws/managed-test@v1
+    Inputs:
+      Sources:
+        - WorkflowSource
+    Outputs:
+      AutoDiscoverReports:
+        IncludePaths:
+          - backend/**/*
+        ExcludePaths:
+          - "*/.aws/workflows/*"
+        ReportNamePrefix: AutoDiscovered
+        Enabled: true
+    Configuration:
+      Steps:
+        - Run: cd backend
+        - Run: python --version
+        - Run: pip --version
+        - Run: pip install -r requirements-dev.txt
+        - Run: pytest --junitxml=test_unit_results.xml --cov-report xml:test_unit_coverage.xml --cov=. tests/unit
+        - Run: echo "No test coverage step"
+    Environment:
+      Connections:
+        - Role: CodeCatalystWorkflowDevelopmentRole-cosmos
+          Name: "347110856025"
+      Name: dev_environment
+  BackendCDKBootstrapAction:
+    Identifier: aws/cdk-bootstrap@v1
+    Inputs:
+      Artifacts:
+        - backend
+    DependsOn:
+      - BackendTest
+      - BackendBuildAndPackage
+    Configuration:
+      Region: eu-west-1
+    Environment:
+      Name: dev_environment
+      Connections:
+        - Name: "347110856025"
+          Role: CodeCatalystWorkflowDevelopmentRole-cosmos
+  BackendCDKDeploy:
+    Identifier: aws/cdk-deploy@v1
+    Inputs:
+      Artifacts:
+        - backend
+    DependsOn:
+      - BackendCDKBootstrapAction
+    Configuration:
+      StackName: FoodFeedBackendStack
+      CdkRootPath: backend/
+      CdkCliVersion: 2.110.0
+      Region: eu-west-1
+      Context: '{"stack_name": "FoodFeedBackendStack", "OPENAI_API_KEY": "${Secrets.OPENAI_API_KEY}"}'
+    Environment:
+      Name: dev_environment
+      Connections:
+        - Name: "347110856025"
+          Role: CodeCatalystWorkflowDevelopmentRole-cosmos
