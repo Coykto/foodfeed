@@ -156,19 +156,12 @@ class PythonStack(Stack):
             input_path="$"
         )
 
-        embedd_and_upload_each_venue_task = sfn.Map(
-            self, "Embedd And Upload Each Venue",
-            max_concurrency=10,
-            items_path="$",
-        ).iterator(embedd_and_upload_task)
-
         # Define the State Machine
         sfn.StateMachine(
             self, "FoodIngestionStateMachine",
             definition_body=sfn.DefinitionBody.from_chainable(
                 get_venues_task
-                .next(process_each_venue_task)
-                .next(embedd_and_upload_each_venue_task)
+                .next(process_each_venue_task.next(embedd_and_upload_task))
             )
         )
 
