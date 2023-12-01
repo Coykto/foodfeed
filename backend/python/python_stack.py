@@ -142,26 +142,27 @@ class PythonStack(Stack):
             input_path="$"  # Pass each object to process_venue_items
         )
 
-        process_each_venue_task = sfn.Map(
-            self, "Process Each Venue",
-            max_concurrency=10,  # Adjust as needed
-            items_path="$.Payload",  # Adjust according to your Lambda's output
-            result_selector={"s.$": "$[*].Payload"},
-            output_path="$.s"
-        ).iterator(process_venue_task)
-
         embedd_and_upload_task = tasks.LambdaInvoke(
             self, "Embedd And Upload Items",
             lambda_function=embedd_and_upload,
             input_path="$"
         )
 
+        process_each_venue_task = sfn.Map(
+            self, "Process Each Venue",
+            max_concurrency=10,  # Adjust as needed
+            items_path="$.Payload",  # Adjust according to your Lambda's output
+            result_selector={"s.$": "$[*].Payload"},
+            output_path="$.s"
+        ).iterator(process_venue_task.next(embedd_and_upload_task))
+
+
         # Define the State Machine
         sfn.StateMachine(
             self, "FoodIngestionStateMachine",
             definition_body=sfn.DefinitionBody.from_chainable(
                 get_venues_task
-                .next(process_each_venue_task.next(embedd_and_upload_task))
+                .next(process_each_venue_task)
             )
         )
 
