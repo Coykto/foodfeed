@@ -25,6 +25,7 @@ class PythonStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, openai_api_key: str = None, **kwargs) -> None:
         self.openai_api_key = openai_api_key
+        print("openai_api_key", self.openai_api_key)
         super().__init__(scope, construct_id, **kwargs)
 
         """
