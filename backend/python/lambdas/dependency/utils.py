@@ -48,8 +48,6 @@ def embedd_items(
     max_attempts: int = 3,
     attempt: int = 0,
 ) -> List[dict]:
-    if attempt > max_attempts:
-        raise Exception("Too many attempts to embedd")
     try:
         res = openai_client.embeddings.create(
             input=[item[embedd_field] for item in items],
@@ -61,6 +59,8 @@ def embedd_items(
             item["enriched"] = enriched
         return items
     except Exception as e:
+        if attempt == max_attempts:
+            raise e
         return embedd_items(
             openai_client,
             items,
@@ -89,14 +89,14 @@ def embedd_query(
     max_attempts: int = 3,
     attempt: int = 0,
 ) -> List[float]:
-    if attempt > max_attempts:
-        raise Exception("Too many attempts to embedd")
     try:
         return openai_client.embeddings.create(
             input=[query],
             model=embed_model
         ).data[0].embedding
-    except Exception:
+    except Exception as e:
+        if attempt == max_attempts:
+            raise e
         return embedd_query(
             openai_client,
             query,
