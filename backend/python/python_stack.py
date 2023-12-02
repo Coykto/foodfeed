@@ -23,10 +23,10 @@ ApiGatewayStageStackOutput = 'ApiStage'
 
 class PythonStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, openai_api_key: str = None, **kwargs) -> None:
-        self.openai_api_key = openai_api_key
-        print("openai_api_key", self.openai_api_key)
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
+        self.openai_api_key = self.node.try_get_context('OPENAI_API_KEY')
+        print("openai_api_key", self.openai_api_key)
 
         """
         ingestion pipeline:

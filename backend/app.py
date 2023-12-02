@@ -8,6 +8,10 @@ from python.python_stack import PythonStack
 stack_name = 'FoodFeedBackendStack' if 'LOCAL_TESTING' not in os.environ else 'PythonStack'
 
 app = cdk.App()
+
+if app.node.try_get_context('OPENAI_API_KEY') is None:
+    app.node.set_context('OPENAI_API_KEY', os.getenv("OPENAI_API_KEY"))
+
 PythonStack(
     app,
     stack_name,
@@ -22,7 +26,6 @@ PythonStack(
         account=os.getenv('CDK_DEFAULT_ACCOUNT'),
         region=os.getenv('CDK_DEFAULT_REGION')
     ),
-    openai_api_key=app.node.try_get_context('OPENAI_API_KEY')
 
     # Uncomment the next line if you know exactly what Account and Region you
     # want to deploy the stack to. */
