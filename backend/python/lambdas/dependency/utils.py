@@ -3,6 +3,7 @@ from typing import List
 
 import boto3
 import openai
+from opensearchpy import OpenSearch
 
 
 def clean_string(input_string):
@@ -104,3 +105,20 @@ def embedd_query(
             max_attempts,
             attempt + 1
         )
+
+
+def venue_uploaded(opensearch_client: OpenSearch, venue_slug: str) -> bool:
+    venue_documents_count = opensearch_client.search(
+        timeout=60,
+        size=0,
+        index="food",
+        body={
+            "query": {
+                "match": {
+                    "venue_slug": f"{venue_slug}"
+                }
+            }
+        }
+    )["hits"]["total"]["value"]
+
+    return int(venue_documents_count) > 0
