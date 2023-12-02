@@ -147,7 +147,7 @@ class PythonStack(Stack):
         initialize_opensearch_task = tasks.LambdaInvoke(
             self, "Initialize Opensearch",
             lambda_function=initialize_opensearch,
-            result_selector={"statusCode.$": "$.Payload.statusCode"},
+            result_selector={"statusCode.$": "$.Payload"},
             output_path="$.statusCode"
         )
 

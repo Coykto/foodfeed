@@ -1,5 +1,8 @@
 import json
+from typing import List
+
 import boto3
+import openai
 
 
 def clean_string(input_string):
@@ -19,30 +22,6 @@ def clean_tags(tags):
 
 
 def generate_full_text(item):
-    """
-    item["venue"] = venue["venue"]["name"]
-    item["venue_slug"] = venue_slug
-    item["estimate"] = venue["venue"]["estimate"]
-    item["venue_description"] = venue["venue"]["short_description"]
-    item["venue_tags"] = [clean_string(tag).lower() for tag in venue["venue"]["tags"]]
-    item["venue_rating"] = venue["venue"]["rating"]["score"]
-    item["venue_image"] = (venue.get("image") or {}).get("url", {})
-
-    # category data
-    item["category"] = category["name"]
-    item["category_slug"] = category["slug"]
-    item["category_description"] = category["description"]
-    item["category_image"] = category.get("image")
-
-    # item data
-    item["id"] = item["id"]
-    item["image"] = item.get("image") or (item["images"] or [{}])[0].get("url")
-    item["price"] = item["baseprice"]
-    item["enabled"] = item["enabled"]
-    item["tags"] = clean_tags(item["tags"])
-    item["name"] = clean_string(item["name"])
-    item["description"] = clean_string(item["description"])
-    """
     name = item["name"]
     description = item["short_description"]
     tags = ', '.join(item["tags"])
@@ -58,3 +37,71 @@ def generate_full_text(item):
         f"Category: {category} - {category_description}\n"
         f"Venue: {venue}\n - {venue_description}"
     )
+
+
+def embedd_items(
+    openai_client: openai.Client,
+    items: List[dict],
+    embedd_field: str,
+    enriched: bool = False,
+    embed_model: str = "text-embedding-ada-002",
+    max_attempts: int = 3,
+    attempt: int = 0,
+) -> List[dict]:
+    if attempt > max_attempts:
+        raise Exception("Too many attempts to embedd")
+    try:
+        res = openai_client.embeddings.create(
+            input=[item[embedd_field] for item in items],
+            model=embed_model
+        )
+        embeds = [record.embedding for record in res.data]
+        for index, item in enumerate(items):
+            item["vector"] = embeds[index]
+            item["enriched"] = enriched
+        return items
+    except Exception as e:
+        return embedd_items(
+            openai_client,
+            items,
+            embedd_field,
+            enriched,
+            embed_model,
+            max_attempts,
+            attempt + 1
+        )
+
+
+def create_bulk(index_name, data) -> str:
+    bulk_data = ''
+    for item in data:
+        item_action = json.dumps({"index": {"_index": index_name, "_id": item.pop("id")}})
+        item_data = json.dumps(item)
+
+        bulk_data += f"{item_action}\n{item_data}\n"
+    return bulk_data
+
+
+def embedd_query(
+    openai_client: openai.Client,
+    query: str,
+    embed_model: str = "text-embedding-ada-002",
+    max_attempts: int = 3,
+    attempt: int = 0,
+) -> List[float]:
+    if attempt > max_attempts:
+        raise Exception("Too many attempts to embedd")
+    try:
+        return openai_client.embeddings.create(
+            input=[query],
+            model=embed_model
+        ).data[0].embedding
+    except Exception:
+        return embedd_query(
+            openai_client,
+            query,
+            embed_model,
+            max_attempts,
+            attempt + 1
+        )
+
