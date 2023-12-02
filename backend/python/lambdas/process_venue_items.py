@@ -68,7 +68,7 @@ def lambda_handler(event, context):
                 "venue": clean_string(venue["venue"]["name"]),
                 "venue_slug": venue_slug,
                 "estimate": venue["venue"]["estimate"],
-                "venue_description": clean_string(venue["venue"]["short_description"]),
+                "venue_description": clean_string(venue["venue"].get("short_description", "")),
                 "venue_tags": [clean_string(tag).lower() for tag in venue["venue"]["tags"]],
                 "venue_rating": (venue["venue"].get("rating") or {}).get("score"),
                 "venue_image": (venue.get("image") or {}).get("url", {}),
@@ -76,7 +76,7 @@ def lambda_handler(event, context):
                 # category data
                 "category": clean_string(category["name"]),
                 "category_slug": category["slug"],
-                "category_description": clean_string(category["description"]),
+                "category_description": clean_string(category.get("description", "")),
                 "category_image": category.get("image"),
 
                 # item data
@@ -90,10 +90,10 @@ def lambda_handler(event, context):
                 "full_slug": f"{venue_slug}/{slug(clean_string(item['name']), item['id'])}",
                 "full_description": (
                     f"Venue: {clean_string(venue['venue']['name'])}\n"
-                    f"Venue Description: {clean_string(venue['venue']['short_description'])}\n"
+                    f"Venue Description: {clean_string(venue['venue'].get('short_description',''))}\n"
                     f"Venue Tags: {', '.join([clean_string(tag).lower() for tag in venue['venue']['tags']])}\n"
                     f"Category: {clean_string(category['name'])}\n"
-                    f"Category Description: {clean_string(category['description'])}\n"
+                    f"Category Description: {clean_string(category.get('description', ''))}\n"
                     f"Item: {clean_string(item['name'])}\n"
                     f"Item Description: {clean_string(item['description'])}\n"
                     f"Item Tags: {', '.join(clean_tags(item['tags']))}\n"

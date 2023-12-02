@@ -91,8 +91,9 @@ class PythonStack(Stack):
                 exclude=["**", "!get_venues.py"]
             ),
             handler='get_venues.lambda_handler',
-            timeout=Duration.seconds(30),
+            timeout=Duration.seconds(60),
             environment={
+                "OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint,
                 "VENUES_ENDPOINT": "https://consumer-api.wolt.com/v1/pages/restaurants",
                 "LATITUDE": "41.72484116869996",
                 "LONGITUDE": "44.72807697951794",
@@ -102,6 +103,7 @@ class PythonStack(Stack):
             layers=[dependency_layer]
         )
         raw_venues_bucket.grant_read_write(get_venues)
+        food_search_domain.grant_read_write(get_venues)
 
         process_venue_items = lambda_.Function(self,'getVenueItems',
             runtime=lambda_.Runtime.PYTHON_3_9,
@@ -131,7 +133,7 @@ class PythonStack(Stack):
                 exclude=["**", "!embedd_and_upload.py"]
             ),
             handler='embedd_and_upload.lambda_handler',
-            timeout=Duration.seconds(60),
+            timeout=Duration.seconds(300),
             environment={
                 "OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint,
                 "OPENAI_API_KEY": self.openai_api_key,
