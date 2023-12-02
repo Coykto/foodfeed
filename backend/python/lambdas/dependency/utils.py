@@ -104,4 +104,3 @@ def embedd_query(
             max_attempts,
             attempt + 1
         )
-

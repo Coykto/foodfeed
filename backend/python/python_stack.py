@@ -132,7 +132,7 @@ class PythonStack(Stack):
             handler='embedd_and_upload.lambda_handler',
             environment={
                 "OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint,
-                "OPENAI_API_KEY": str(os.getenv("OPENAI_API_KEY", '')),
+                "OPENAI_API_KEY": self.openai_api_key,
                 "PROCESSED_VENUES_BUCKET": processed_venues_bucket.bucket_name,
             },
             tracing=lambda_.Tracing.ACTIVE,
