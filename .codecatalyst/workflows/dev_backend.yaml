@@ -33,6 +33,7 @@ Actions:
         ReportNamePrefix: AutoDiscovered
         Enabled: true
     Configuration:
+      Context: '{"OPENAI_API_KEY": "${Secrets.OPENAI_API_KEY}"}'
       Steps:
         - Run: cd backend
         - Run: python --version
