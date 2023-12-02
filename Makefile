@@ -1,4 +1,4 @@
 
-poetry_export:
-	poetry export --with dev --output backend/requirements-dev.txt && \
-	poetry export -f requirements.txt --without=dev --output backend/requirements.txt
+poetry:
+	poetry export --with dev --without-hashes --without-urls --ansi --output backend/requirements-dev.txt && \
+	poetry export --without dev --without-hashes --without-urls --ansi --output backend/requirements-dev.txt
