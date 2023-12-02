@@ -125,7 +125,7 @@ class PythonStack(Stack):
             layers=[dependency_layer]
         )
         food_search_domain.grant_read_write(embedd_and_upload)
-        processed_venues_bucket.grant_read(embedd_and_upload)
+        processed_venues_bucket.grant_read_write(embedd_and_upload)
 
         # ========================
         # Step-Machine Definition:
@@ -145,7 +145,7 @@ class PythonStack(Stack):
         embedd_and_upload_task = tasks.LambdaInvoke(
             self, "Embedd And Upload Items",
             lambda_function=embedd_and_upload,
-            input_path="$"
+            input_path="$.Payload"
         )
 
         process_each_venue_task = sfn.Map(
@@ -154,8 +154,10 @@ class PythonStack(Stack):
             items_path="$.Payload",  # Adjust according to your Lambda's output
             result_selector={"s.$": "$[*].Payload"},
             output_path="$.s"
-        ).iterator(process_venue_task.next(embedd_and_upload_task))
-
+        ).iterator(
+            process_venue_task
+            .next(embedd_and_upload_task)
+        )
 
         # Define the State Machine
         sfn.StateMachine(
