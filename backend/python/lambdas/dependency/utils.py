@@ -133,7 +133,7 @@ def get_venues_in_opensearch(opensearch_client: OpenSearch, index_name: str) -> 
             "aggs": {
                 "venues": {
                     "terms": {
-                        "field": "venue_slug.keyword",
+                        "field": "venue_slug",
                         "size": 1000
                     }
                 }
