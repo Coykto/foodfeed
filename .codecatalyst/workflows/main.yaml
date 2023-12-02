@@ -73,10 +73,10 @@ Actions:
       CdkCliVersion: 2.110.0
       Region: eu-west-1
       Context: >
-        '{
-            "stack_name": "FoodFeedBackendStack", 
-            "OPENAI_API_KEY": "${Secrets.OPENAI_API_KEY}"
-        }'
+        {
+          "stack_name": "FoodFeedBackendStack", 
+          "OPENAI_API_KEY": "${Secrets.OPENAI_API_KEY}"
+        }
     Environment:
       Name: main_environment
       Connections:
