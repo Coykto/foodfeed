@@ -7,7 +7,7 @@ from .config.settings import settings
 class AI:
     def __init__(self):
         self.client = openai.Client(api_key=settings.OPENAI_API_KEY)
-        self.embed_model = settings.OPENAI_EMBED_MODEL
+        self.embed_model = settings.OPENAI_EMBED_MODEL or "text-embedding-ada-002"
 
     def embedd_items(
         self,
