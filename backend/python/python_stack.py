@@ -176,7 +176,7 @@ class PythonStack(Stack):
 
         refresh_choice = (sfn.Choice(self, "Refresh?", input_path="$")
             .when(
-                sfn.Condition.is_present("$.Payload[0]", 0),
+                sfn.Condition.is_present("$.Payload[0]"),
                 process_each_venue_task
             )
             .otherwise(sfn.Succeed(self, "Nothing to ingest"))
@@ -252,9 +252,3 @@ class PythonStack(Stack):
         CfnOutput(self, ApiGatewayStageStackOutput,
             value=apiGateway.deployment_stage.stage_name
         )
-
-        d = """
-        definition = submit_job.next(wait_x).next(get_status).next(
-            sfn.Choice(self, "Job Complete?").when(sfn.Condition.string_equals("$.status", "FAILED"), job_failed).when(
-                sfn.Condition.string_equals("$.status", "SUCCEEDED"), final_status).otherwise(wait_x))
-        """
