@@ -173,7 +173,7 @@ class PythonStack(Stack):
 
         process_each_venue_task = sfn.Map(
             self, "Process Each Venue",
-            # max_concurrency=30,
+            max_concurrency=10,
             items_path="$.Payload",
             result_selector={"s.$": "$[*].Payload"},
             output_path="$.s"
