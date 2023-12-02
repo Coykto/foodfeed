@@ -175,7 +175,7 @@ class PythonStack(Stack):
 
         refresh_choice = (sfn.Choice(self, "Refresh?")
             .when(
-                sfn.Condition.number_equals("$.Payload.length()", 0),
+                sfn.Condition.number_equals("$.Payload.length", 0),
                 sfn.Succeed(self, "Nothing to ingest")
             )
             .otherwise(process_each_venue_task)
