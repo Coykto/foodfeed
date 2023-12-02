@@ -17,7 +17,7 @@ class Storage:
         )
         return json.loads(s3_response["Body"].read().decode("utf-8"))
 
-    def _put_object(self, bucket: str, key: str, data: str):
+    def _put_object(self, bucket: str, key: str, data: Dict):
         return self.client.put_object(
             Bucket=bucket,
             Key=key,
