@@ -40,7 +40,7 @@ def lambda_handler(event, context):
     s3_client = boto3.client('s3')
 
     venue_slug = event["s"]
-    s3_response =  s3_client.get_object(
+    s3_response = s3_client.get_object(
         Bucket=RAW_VENUES_BUCKET,
         Key=f"{country}/{city}/restaurant/{venue_slug}.json"
     )
@@ -105,3 +105,5 @@ def lambda_handler(event, context):
         Bucket=PROCESSED_VENUES_BUCKET,
         Key=f"{country}/{city}/restaurant/{venue_slug}.json"
     )
+
+    return {"s": venue_slug}

@@ -23,9 +23,10 @@ ApiGatewayStageStackOutput = 'ApiStage'
 
 class PythonStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, openai_api_key: str = None, **kwargs) -> None:
-        self.openai_api_key = openai_api_key
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
+        self.openai_api_key = self.node.try_get_context('OPENAI_API_KEY')
+        print("openai_api_key", self.openai_api_key)
 
         """
         ingestion pipeline:
@@ -69,6 +70,20 @@ class PythonStack(Stack):
             ))
         )
 
+        initialize_opensearch = lambda_.Function(self, 'initializeOpensearch',
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.AssetCode.from_asset(
+                path.join(os.getcwd(), 'python/lambdas'),
+                exclude=["**", "!initialize_opensearch.py"]
+            ),
+            handler='initialize_opensearch.lambda_handler',
+            timeout=Duration.seconds(15),
+            environment={"OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint},
+            tracing=lambda_.Tracing.ACTIVE,
+            layers=[dependency_layer]
+        )
+        food_search_domain.grant_read_write(initialize_opensearch)
+
         get_venues = lambda_.Function(self,'getVenues',
             runtime=lambda_.Runtime.PYTHON_3_9,
             code=lambda_.AssetCode.from_asset(
@@ -88,13 +103,13 @@ class PythonStack(Stack):
         )
         raw_venues_bucket.grant_read_write(get_venues)
 
-        get_venue_items = lambda_.Function(self,'getVenueItems',
+        process_venue_items = lambda_.Function(self,'getVenueItems',
             runtime=lambda_.Runtime.PYTHON_3_9,
             code=lambda_.AssetCode.from_asset(
                 path.join(os.getcwd(), 'python/lambdas'),
-                exclude=["**", "!get_venue_items.py"]
+                exclude=["**", "!process_venue_items.py"]
             ),
-            handler='get_venue_items.lambda_handler',
+            handler='process_venue_items.lambda_handler',
             timeout=Duration.seconds(60),
             environment={
                 "BASE_HOST": "https://restaurant-api.wolt.com/v4/venues/slug/",
@@ -106,19 +121,20 @@ class PythonStack(Stack):
             tracing=lambda_.Tracing.ACTIVE,
             layers=[dependency_layer]
         )
-        raw_venues_bucket.grant_read(get_venue_items)
-        processed_venues_bucket.grant_write(get_venue_items)
+        raw_venues_bucket.grant_read(process_venue_items)
+        processed_venues_bucket.grant_write(process_venue_items)
 
         embedd_and_upload = lambda_.Function(self,'embeddAndUpload',
             runtime=lambda_.Runtime.PYTHON_3_9,
             code=lambda_.AssetCode.from_asset(
                 path.join(os.getcwd(), 'python/lambdas'),
-                exclude=["**", "!get_venues.py"]
+                exclude=["**", "!embedd_and_upload.py"]
             ),
             handler='embedd_and_upload.lambda_handler',
+            timeout=Duration.seconds(60),
             environment={
                 "OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint,
-                "OPENAI_API_KEY": str(os.getenv("OPENAI_API_KEY", '')),
+                "OPENAI_API_KEY": self.openai_api_key,
                 "PROCESSED_VENUES_BUCKET": processed_venues_bucket.bucket_name,
             },
             tracing=lambda_.Tracing.ACTIVE,
@@ -130,36 +146,49 @@ class PythonStack(Stack):
         # ========================
         # Step-Machine Definition:
         # ========================
+        initialize_opensearch_task = tasks.LambdaInvoke(
+            self, "Initialize Opensearch",
+            lambda_function=initialize_opensearch,
+            result_selector={"statusCode.$": "$.Payload"},
+            output_path="$.statusCode"
+        )
+
         get_venues_task = tasks.LambdaInvoke(
             self, "Get Venues",
             lambda_function=get_venues,
-            output_path="$.Payload"  # Adjust according to your Lambda's output
+            output_path="$.Payload"
         )
 
         process_venue_task = tasks.LambdaInvoke(
             self, "Process Venue And Save Items",
-            lambda_function=get_venue_items,
-            input_path="$"  # Pass each object to get_venue_items
+            lambda_function=process_venue_items,
+            input_path="$"
         )
-
-        process_each_venue_task = sfn.Map(
-            self, "Process Each Venue",
-            max_concurrency=3,  # Adjust as needed
-            items_path="$.Payload"  # Adjust according to your Lambda's output
-        ).iterator(process_venue_task)
 
         embedd_and_upload_task = tasks.LambdaInvoke(
             self, "Embedd And Upload Items",
             lambda_function=embedd_and_upload,
+            input_path="$.Payload"
+        )
+
+        process_each_venue_task = sfn.Map(
+            self, "Process Each Venue",
+            max_concurrency=10,
+            items_path="$.Payload",
+            result_selector={"s.$": "$[*].Payload"},
+            output_path="$.s"
+        ).iterator(
+            process_venue_task
+            .next(embedd_and_upload_task)
         )
 
         # Define the State Machine
         sfn.StateMachine(
             self, "FoodIngestionStateMachine",
             definition_body=sfn.DefinitionBody.from_chainable(
-                get_venues_task
+                initialize_opensearch_task
+                .next(get_venues_task)
                 .next(process_each_venue_task)
-                .next(embedd_and_upload_task)
             )
         )
 
@@ -211,3 +240,15 @@ class PythonStack(Stack):
             )
         )
         todos.add_method('GET', apigateway.LambdaIntegration(getTodos))
+
+        CfnOutput(self, ApiGatewayEndpointStackOutput,
+            value=apiGateway.url
+        )
+
+        CfnOutput(self, ApiGatewayDomainStackOutput,
+            value=apiGateway.url.split('/')[2]
+        )
+
+        CfnOutput(self, ApiGatewayStageStackOutput,
+            value=apiGateway.deployment_stage.stage_name
+        )

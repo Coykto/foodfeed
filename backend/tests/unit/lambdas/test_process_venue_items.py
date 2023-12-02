@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../../../python/lambdas"))
 
-from python.lambdas.get_venue_items import lambda_handler
+from python.lambdas.process_venue_items import lambda_handler
 
 
 @pytest.fixture
@@ -27,13 +27,13 @@ def venue_category_menu_response():
 
 @pytest.fixture
 def mock_requests_get():
-    with patch('get_venue_items.requests.get') as mock_get:
+    with patch('process_venue_items.requests.get') as mock_get:
         yield mock_get
 
 
 @pytest.fixture
 def mock_boto3_client():
-    with patch('get_venue_items.boto3.client') as mock_boto3:
+    with patch('process_venue_items.boto3.client') as mock_boto3:
         yield mock_boto3
 
 
