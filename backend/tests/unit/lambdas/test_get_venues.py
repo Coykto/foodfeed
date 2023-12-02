@@ -9,31 +9,41 @@ sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../../
 
 from python.lambdas.get_venues import lambda_handler
 
+
 # Mock response from requests.get
 @pytest.fixture
 def mock_response():
-    return json.load(open("tests/unit/fixtures/all_venues.json", "r"))
+    return json.load(open(f"tests/unit/fixtures/all_venues.json", "r"))["sections"][1]["items"]
 
-# Mock event and context
+
 @pytest.fixture
 def mock_event_context():
     return {}, Mock()
 
+
 @pytest.fixture
-def mock_get_venues_in_opensearch():
-    with patch('get_venues.utils.get_venues_in_opensearch') as mock_get_venues:
-        yield mock_get_venues
+def mock_wolt():
+    with patch('python.lambdas.get_venues.Wolt') as mock_wolt:
+        yield mock_wolt
+
+
+@pytest.fixture
+def mock_search():
+    with patch('python.lambdas.get_venues.Search') as mock_search:
+        yield mock_search
+
+
+@pytest.fixture
+def mock_storage():
+    with patch('python.lambdas.get_venues.Storage') as mock_storage:
+        yield mock_storage
+
 
 # Test function
-def test_lambda_handler(mock_response, mock_event_context, mock_get_venues_in_opensearch, mocker):
-    # Mock requests.get
-    mocker.patch("requests.get", return_value=Mock(json=lambda: mock_response))
-
-    # Mock boto3.client
-    s3_client_mock = mocker.patch("boto3.client")
-    s3_client_mock.return_value.put_object.return_value = {}
-
-    mock_get_venues_in_opensearch.return_value = []
+def test_lambda_handler(mock_response, mock_event_context, mock_search, mock_storage, mock_wolt):
+    mock_wolt.return_value.get_venues.return_value = mock_response
+    mock_storage.return_value.put_raw_venue.return_value = None
+    mock_search.return_value.indexed_venues.return_value = []
 
     # Call the function with the mock event and context
     response = lambda_handler(*mock_event_context)
@@ -45,37 +55,42 @@ def test_lambda_handler(mock_response, mock_event_context, mock_get_venues_in_op
         {"s": "premium-sandwich"}
     ]
 
-def test_lambda_handler_request_fail(mock_event_context, mocker):
-    # Mock requests.get to raise an exception
-    mocker.patch("requests.get", side_effect=Exception("Failed to fetch data"))
+
+def test_lambda_handler_fully_ingested(mock_response, mock_event_context, mock_search, mock_storage, mock_wolt):
+    mock_wolt.return_value.get_venues.return_value = mock_response
+    mock_storage.return_value.put_raw_venue.return_value = None
+    mock_search.return_value.indexed_venues.return_value = ["tasty", "begheli1", "premium-sandwich"]
 
     # Call the function with the mock event and context
     response = lambda_handler(*mock_event_context)
 
-    # Assert the status code is 500
-    assert response["statusCode"] == 500
+    # Assert the body contains the expected venues
+    assert response["Payload"] == []
 
-def test_lambda_handler_s3_fail(mock_response, mock_event_context, mocker):
-    # Mock requests.get
-    mocker.patch("requests.get", return_value=Mock(json=lambda: mock_response))
 
-    # Mock boto3.client to raise an exception
-    s3_client_mock = mocker.patch("boto3.client")
-    s3_client_mock.return_value.put_object.side_effect = Exception("Failed to put object")
+def test_lambda_handler_partially_ingested(mock_response, mock_event_context, mock_search, mock_storage, mock_wolt):
+    mock_wolt.return_value.get_venues.return_value = mock_response
+    mock_storage.return_value.put_raw_venue.return_value = None
+    mock_search.return_value.indexed_venues.return_value = ["tasty", "premium-sandwich"]
 
     # Call the function with the mock event and context
     response = lambda_handler(*mock_event_context)
 
-    # Assert the status code is 500
-    assert response["statusCode"] == 500
+    # Assert the body contains the expected venues
+    assert response["Payload"] == [{"s": "begheli1"}]
 
-def test_lambda_handler_no_venues(mock_event_context, mocker):
-    # Mock requests.get to return no venues
-    mocker.patch("requests.get", return_value=Mock(json=lambda: {"sections": [{}, {}]}))
+
+def test_lambda_handler_fully_ingested_refresh(mock_response, mock_event_context, mock_search, mock_storage, mock_wolt):
+    mock_wolt.return_value.get_venues.return_value = mock_response
+    mock_storage.return_value.put_raw_venue.return_value = None
+    mock_search.return_value.indexed_venues.return_value = ["tasty", "begheli1", "premium-sandwich"]
 
     # Call the function with the mock event and context
-    response = lambda_handler(*mock_event_context)
+    response = lambda_handler({"refresh": True}, Mock())
 
-    # Assert the status code is 200 and the body is an empty list
-    assert response["statusCode"] == 500
-    assert "KeyError" in response["body"]["message"]
+    # Assert the body contains the expected venues
+    assert response["Payload"] == [
+        {"s": "tasty"},
+        {"s": "begheli1"},
+        {"s": "premium-sandwich"}
+    ]

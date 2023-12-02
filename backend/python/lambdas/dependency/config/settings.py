@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     RAW_VENUES_BUCKET: Optional[str] = None
     PROCESSED_VENUES_BUCKET: Optional[str] = None
     # wolt
+    VENUES_ENDPOINT: Optional[str] = None
     WOLT_API_BASE: Optional[str] = None
     VENUE_CATEGORIES_URI: Optional[str] = None
     VENUE_MENU_URI: Optional[str] = None
@@ -24,6 +25,9 @@ class Settings(BaseSettings):
         if value is None:
             raise AttributeError(f"Setting '{name}' is not set")
         return value
+
+    class Config:
+        env_file = ".env"
 
 
 settings = Settings()

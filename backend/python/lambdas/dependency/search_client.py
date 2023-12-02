@@ -10,7 +10,7 @@ from .config.settings import settings
 
 class Search:
 
-    def __int__(self):
+    def __init__(self):
         service = 'es'
         credentials = boto3.Session().get_credentials()
         auth = AWSV4SignerAuth(credentials, settings.REGION, service)
