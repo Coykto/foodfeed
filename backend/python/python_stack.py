@@ -144,7 +144,7 @@ class PythonStack(Stack):
         processed_venues_bucket.grant_read(embedd_and_upload)
 
         # ========================
-        # Step-Machine Definition:
+        # State Machine Definition:
         # ========================
         initialize_opensearch_task = tasks.LambdaInvoke(
             self, "Initialize Opensearch",
