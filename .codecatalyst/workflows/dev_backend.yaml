@@ -24,9 +24,6 @@ Actions:
     Inputs:
       Sources:
         - WorkflowSource
-      Variables:
-        - Name: OPENAI_API_KEY
-          Value: ${Secrets.OPENAI_API_KEY}"}
     Outputs:
       AutoDiscoverReports:
         IncludePaths:
@@ -37,6 +34,7 @@ Actions:
         Enabled: true
     Configuration:
       Steps:
+        - RUN: export OPENAI_API_KEY=${Secrets.OPENAI_API_KEY}
         - Run: cd backend
         - Run: python --version
         - Run: pip --version
