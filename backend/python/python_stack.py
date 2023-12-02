@@ -131,7 +131,7 @@ class PythonStack(Stack):
                 exclude=["**", "!embedd_and_upload.py"]
             ),
             handler='embedd_and_upload.lambda_handler',
-            timeout=Duration.seconds(60),
+            timeout=Duration.seconds(300),
             environment={
                 "OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint,
                 "OPENAI_API_KEY": self.openai_api_key,
@@ -173,7 +173,7 @@ class PythonStack(Stack):
 
         process_each_venue_task = sfn.Map(
             self, "Process Each Venue",
-            max_concurrency=10,
+            # max_concurrency=30,
             items_path="$.Payload",
             result_selector={"s.$": "$[*].Payload"},
             output_path="$.s"
