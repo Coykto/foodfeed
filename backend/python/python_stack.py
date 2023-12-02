@@ -103,6 +103,7 @@ class PythonStack(Stack):
             layers=[dependency_layer]
         )
         raw_venues_bucket.grant_read_write(get_venues)
+        food_search_domain.grant_read_write(get_venues)
 
         process_venue_items = lambda_.Function(self,'getVenueItems',
             runtime=lambda_.Runtime.PYTHON_3_9,
