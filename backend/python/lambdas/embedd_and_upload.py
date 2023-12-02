@@ -52,6 +52,6 @@ def lambda_handler(event, context):
     )
 
     bulk_data = create_bulk(index_name, menu_items)
-    opensearch_client.bulk(bulk_data, index=index_name, timeout=60)
+    opensearch_client.bulk(bulk_data, index=index_name, timeout=300)
 
     return {"s": venue_slug}
