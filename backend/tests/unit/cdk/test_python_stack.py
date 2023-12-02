@@ -7,7 +7,9 @@ sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../../
 from python.python_stack import PythonStack
 
 def test_resources_created():
-    app = core.App()
+    app = core.App(
+        context={'OPENAI_API_KEY': "openai_api_key"}
+    )
     stack = PythonStack(app, "python")
     template = assertions.Template.from_stack(stack)
 

@@ -131,6 +131,7 @@ class PythonStack(Stack):
                 exclude=["**", "!embedd_and_upload.py"]
             ),
             handler='embedd_and_upload.lambda_handler',
+            timeout=Duration.seconds(60),
             environment={
                 "OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint,
                 "OPENAI_API_KEY": self.openai_api_key,
