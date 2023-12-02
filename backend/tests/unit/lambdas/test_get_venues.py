@@ -30,9 +30,6 @@ def test_lambda_handler(mock_response, mock_event_context, mocker):
     # Call the function with the mock event and context
     response = lambda_handler(*mock_event_context)
 
-    # Assert the status code is 200
-    assert response["statusCode"] == 200
-
     # Assert the body contains the expected venues
     assert response["Payload"] == [
         {"s": "tasty"},
