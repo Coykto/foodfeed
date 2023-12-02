@@ -5,7 +5,7 @@ import boto3
 import requests
 from opensearchpy import AWSV4SignerAuth, OpenSearch, RequestsHttpConnection
 
-from dependency.utils import get_venues_in_opensearch
+from dependency import utils
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -47,7 +47,7 @@ def lambda_handler(event, context):
             service = 'es'
             credentials = boto3.Session().get_credentials()
             auth = AWSV4SignerAuth(credentials, region, service)
-            OPENSEARCH_ENDPOINT = os.getenv("OPENSEARCH_ENDPOINT")
+            OPENSEARCH_ENDPOINT = os.getenv("OPENSEARCH_ENDPOINT", "")
             opensearch_client = OpenSearch(
                 hosts=[{'host': OPENSEARCH_ENDPOINT, 'port': 443}],
                 http_auth=auth,
@@ -56,7 +56,7 @@ def lambda_handler(event, context):
                 connection_class=RequestsHttpConnection,
                 pool_maxsize=20,
             )
-            venues_in_opensearch = get_venues_in_opensearch(opensearch_client, index_name)
+            venues_in_opensearch = utils.get_venues_in_opensearch(opensearch_client, index_name)
             venues = [venue for venue in venues if venue.get('venue').get('slug') not in venues_in_opensearch]
 
         for venue in venues:
