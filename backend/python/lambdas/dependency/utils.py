@@ -73,16 +73,6 @@ def embedd_items(
         )
 
 
-def create_bulk(index_name, data) -> str:
-    bulk_data = ''
-    for item in data:
-        item_action = json.dumps({"index": {"_index": index_name, "_id": item.pop("id")}})
-        item_data = json.dumps(item)
-
-        bulk_data += f"{item_action}\n{item_data}\n"
-    return bulk_data
-
-
 def embedd_query(
     openai_client: openai.Client,
     query: str,
@@ -106,39 +96,3 @@ def embedd_query(
             attempt + 1
         )
 
-
-def venue_uploaded(opensearch_client: OpenSearch, venue_slug: str) -> bool:
-    venue_documents_count = opensearch_client.search(
-        timeout=60,
-        size=0,
-        index="food",
-        body={
-            "query": {
-                "match": {
-                    "venue_slug": f"{venue_slug}"
-                }
-            }
-        }
-    )["hits"]["total"]["value"]
-
-    return int(venue_documents_count) > 0
-
-
-def get_venues_in_opensearch(opensearch_client: OpenSearch, index_name: str) -> List[str]:
-    venues = opensearch_client.search(
-        timeout=60,
-        size=0,
-        index=index_name,
-        body={
-            "aggs": {
-                "venues": {
-                    "terms": {
-                        "field": "venue_slug",
-                        "size": 1000
-                    }
-                }
-            }
-        }
-    )["aggregations"]["venues"]["buckets"]
-
-    return [venue["key"] for venue in venues]
