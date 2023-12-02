@@ -69,6 +69,20 @@ class PythonStack(Stack):
             ))
         )
 
+        initialize_opensearch = lambda_.Function(self, 'initializeOpensearch',
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.AssetCode.from_asset(
+                path.join(os.getcwd(), 'python/lambdas'),
+                exclude=["**", "!initialize_opensearch.py"]
+            ),
+            handler='initialize_opensearch.lambda_handler',
+            timeout=Duration.seconds(15),
+            environment={"OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint},
+            tracing=lambda_.Tracing.ACTIVE,
+            layers=[dependency_layer]
+        )
+        food_search_domain.grant_read_write(initialize_opensearch)
+
         get_venues = lambda_.Function(self,'getVenues',
             runtime=lambda_.Runtime.PYTHON_3_9,
             code=lambda_.AssetCode.from_asset(
@@ -125,21 +139,28 @@ class PythonStack(Stack):
             layers=[dependency_layer]
         )
         food_search_domain.grant_read_write(embedd_and_upload)
-        processed_venues_bucket.grant_read_write(embedd_and_upload)
+        processed_venues_bucket.grant_read(embedd_and_upload)
 
         # ========================
         # Step-Machine Definition:
         # ========================
+        initialize_opensearch_task = tasks.LambdaInvoke(
+            self, "Initialize Opensearch",
+            lambda_function=initialize_opensearch,
+            result_selector={"statusCode.$": "$.Payload.statusCode"},
+            output_path="$.statusCode"
+        )
+
         get_venues_task = tasks.LambdaInvoke(
             self, "Get Venues",
             lambda_function=get_venues,
-            output_path="$.Payload"  # Adjust according to your Lambda's output
+            output_path="$.Payload"
         )
 
         process_venue_task = tasks.LambdaInvoke(
             self, "Process Venue And Save Items",
             lambda_function=process_venue_items,
-            input_path="$"  # Pass each object to process_venue_items
+            input_path="$"
         )
 
         embedd_and_upload_task = tasks.LambdaInvoke(
@@ -150,8 +171,8 @@ class PythonStack(Stack):
 
         process_each_venue_task = sfn.Map(
             self, "Process Each Venue",
-            max_concurrency=10,  # Adjust as needed
-            items_path="$.Payload",  # Adjust according to your Lambda's output
+            max_concurrency=10,
+            items_path="$.Payload",
             result_selector={"s.$": "$[*].Payload"},
             output_path="$.s"
         ).iterator(
@@ -163,7 +184,8 @@ class PythonStack(Stack):
         sfn.StateMachine(
             self, "FoodIngestionStateMachine",
             definition_body=sfn.DefinitionBody.from_chainable(
-                get_venues_task
+                initialize_opensearch_task
+                .next(get_venues_task)
                 .next(process_each_venue_task)
             )
         )
