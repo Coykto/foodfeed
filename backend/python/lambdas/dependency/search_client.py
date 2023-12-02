@@ -1,23 +1,21 @@
-import json
-import os
-from typing import List
-
-import boto3
+from .config.food_index import index_settings
 from opensearchpy import OpenSearch, AWSV4SignerAuth, RequestsHttpConnection
 
-from config.food_index import index_settings
+from typing import List
+import boto3
+
+import json
+from .config.settings import settings
 
 
 class Search:
 
     def __int__(self):
-        region = 'eu-west-1'
         service = 'es'
         credentials = boto3.Session().get_credentials()
-        auth = AWSV4SignerAuth(credentials, region, service)
-        OPENSEARCH_ENDPOINT = os.getenv("OPENSEARCH_ENDPOINT", "")
+        auth = AWSV4SignerAuth(credentials, settings.REGION, service)
         self.client = OpenSearch(
-            hosts=[{'host': OPENSEARCH_ENDPOINT, 'port': 443}],
+            hosts=[{'host': settings.OPENSEARCH_ENDPOINT, 'port': 443}],
             http_auth=auth,
             use_ssl=True,
             verify_certs=True,
@@ -63,7 +61,7 @@ class Search:
                     "venues": {
                         "terms": {
                             "field": "venue_slug",
-                            "size": 1000
+                            "size": 10000
                         }
                     }
                 }
@@ -81,6 +79,38 @@ class Search:
             timeout=60
         )
         return 201
+
+    def search_menu(self, index_name: str, vector: List[float], size: int = 10, max_price: int = 3000) -> List[dict]:
+        search_result = self.client.search(
+            timeout=60,
+            size=size,
+            index=index_name,
+            body={
+                "_source": {
+                    "includes": ["full_description"]
+                },
+                "query": {
+                    "bool": {
+                        "filter": {
+                            "range": {
+                                "price": {
+                                    "lte": max_price
+                                }
+                            }
+                        },
+                        "must": {
+                            "knn": {
+                                "vector": {
+                                    "vector": vector,
+                                    "k": size
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        )["hits"]["hits"]
+        return [hit["_source"]["full_description"] for hit in search_result]
 
 
 

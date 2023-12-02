@@ -1,5 +1,42 @@
+from typing import List
+
+import openai
+from .config.settings import settings
 
 
 class AI:
-
     def __init__(self):
+        self.client = openai.Client(api_key=settings.OPENAI_API_KEY)
+        self.embed_model = settings.OPENAI_EMBED_MODEL
+
+    def embedd_items(
+        self,
+        items: List[dict],
+        embedd_field: str,
+        enriched: bool = False,
+    ) -> List[dict]:
+        embeds = self._embedd(items, embedd_field)
+        for index, item in enumerate(items):
+            item["vector"] = embeds[index]
+            item["enriched"] = enriched
+        return items
+
+    def embedd_query(self, query: str) -> List[float]:
+        return self._embedd([{"query": query}], "query")[0]
+
+    def _embedd(self, items, embedd_field, max_attempts: int = 3, attempt: int = 0):
+        try:
+            res = self.client.embeddings.create(
+                input=[item[embedd_field] for item in items],
+                model=self.embed_model
+            )
+            return [record.embedding for record in res.data]
+        except Exception as e:
+            if attempt == max_attempts:
+                raise e
+            return self._embedd(
+                items,
+                embedd_field,
+                max_attempts,
+                attempt + 1
+            )

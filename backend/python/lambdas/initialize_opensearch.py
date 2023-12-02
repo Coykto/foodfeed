@@ -11,5 +11,8 @@ def lambda_handler(event, context):
     index_name = f"{country}.{city}.food"
 
     return {
-        "statusCode": Search().initialize(index_name),
+        "Payload": {
+            "statusCode": Search().initialize(index_name),
+            "refresh": event.get("refresh", False)
+        }
     }
