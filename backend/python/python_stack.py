@@ -93,6 +93,7 @@ class PythonStack(Stack):
             handler='get_venues.lambda_handler',
             timeout=Duration.seconds(60),
             environment={
+                "OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint,
                 "VENUES_ENDPOINT": "https://consumer-api.wolt.com/v1/pages/restaurants",
                 "LATITUDE": "41.72484116869996",
                 "LONGITUDE": "44.72807697951794",

@@ -122,3 +122,23 @@ def venue_uploaded(opensearch_client: OpenSearch, venue_slug: str) -> bool:
     )["hits"]["total"]["value"]
 
     return int(venue_documents_count) > 0
+
+
+def get_venues_in_opensearch(opensearch_client: OpenSearch, index_name: str) -> List[str]:
+    venues = opensearch_client.search(
+        timeout=60,
+        size=0,
+        index=index_name,
+        body={
+            "aggs": {
+                "venues": {
+                    "terms": {
+                        "field": "venue_slug.keyword",
+                        "size": 1000
+                    }
+                }
+            }
+        }
+    )["aggregations"]["venues"]["buckets"]
+
+    return [venue["key"] for venue in venues]
