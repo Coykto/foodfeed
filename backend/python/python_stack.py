@@ -91,7 +91,7 @@ class PythonStack(Stack):
                 exclude=["**", "!get_venues.py"]
             ),
             handler='get_venues.lambda_handler',
-            timeout=Duration.seconds(30),
+            timeout=Duration.seconds(60),
             environment={
                 "VENUES_ENDPOINT": "https://consumer-api.wolt.com/v1/pages/restaurants",
                 "LATITUDE": "41.72484116869996",
