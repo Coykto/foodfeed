@@ -69,12 +69,16 @@ def lambda_handler(event, context):
         use_ssl=True,
         verify_certs=True,
         connection_class=RequestsHttpConnection,
-        pool_maxsize=20
+        pool_maxsize=20,
     )
     status_code = 200
     if not opensearch_client.indices.exists(index_name):
         status_code = 201
-        opensearch_client.indices.create(index_name, body=index_settings)
+        opensearch_client.indices.create(
+            index_name,
+            body=index_settings,
+            timeout=60
+        )
 
     return {
         "statusCode": status_code

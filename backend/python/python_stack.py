@@ -77,7 +77,7 @@ class PythonStack(Stack):
                 exclude=["**", "!initialize_opensearch.py"]
             ),
             handler='initialize_opensearch.lambda_handler',
-            timeout=Duration.seconds(15),
+            timeout=Duration.seconds(30),
             environment={"OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint},
             tracing=lambda_.Tracing.ACTIVE,
             layers=[dependency_layer]
@@ -91,7 +91,7 @@ class PythonStack(Stack):
                 exclude=["**", "!get_venues.py"]
             ),
             handler='get_venues.lambda_handler',
-            timeout=Duration.seconds(10),
+            timeout=Duration.seconds(30),
             environment={
                 "VENUES_ENDPOINT": "https://consumer-api.wolt.com/v1/pages/restaurants",
                 "LATITUDE": "41.72484116869996",
