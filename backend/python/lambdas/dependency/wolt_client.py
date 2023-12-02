@@ -16,7 +16,7 @@ class Wolt:
             }
         ).json()["sections"][1]["items"]
 
-    def categories(self, endpoint, venue_slug):
+    def categories(self, venue_slug):
         return requests.get(
             f"{settings.WOLT_API_BASE}{settings.VENUE_CATEGORIES_URI.format(venue=venue_slug)}",
             params={

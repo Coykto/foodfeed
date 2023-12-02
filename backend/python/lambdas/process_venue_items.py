@@ -25,7 +25,7 @@ def lambda_handler(event, context):
     venue_slug = event["s"]
     venue = storage.get_raw_venue(country, city, venue_slug)
 
-    venue_categories = wolt.categories(venue_slug)
+    venue_categories = wolt.categories(venue_slug, )
 
     menu_items = []
     for category in venue_categories:

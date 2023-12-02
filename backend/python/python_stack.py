@@ -147,6 +147,7 @@ class PythonStack(Stack):
         get_venues_task = tasks.LambdaInvoke(
             self, "Get Venues",
             lambda_function=get_venues,
+            input_path="$.Payload",
             output_path="$.Payload"
         )
 
@@ -173,12 +174,12 @@ class PythonStack(Stack):
             .next(embedd_and_upload_task)
         )
 
-        refresh_choice = (sfn.Choice(self, "Refresh?")
+        refresh_choice = (sfn.Choice(self, "Refresh?", input_path="$")
             .when(
-                sfn.Condition.number_equals("$.Payload.length", 0),
-                sfn.Succeed(self, "Nothing to ingest")
+                sfn.Condition.is_present("$.Payload[0]", 0),
+                process_each_venue_task
             )
-            .otherwise(process_each_venue_task)
+            .otherwise(sfn.Succeed(self, "Nothing to ingest"))
         )
 
         # Define the State Machine

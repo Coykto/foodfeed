@@ -14,7 +14,6 @@ def filter_out_indexed_venues(venues, index_name):
 
 
 def lambda_handler(event, context):
-    refresh = event.get("refresh", False)
     latitude = float(os.getenv('LATITUDE', 0.0))
     longitude = float(os.getenv('LONGITUDE', 0.0))
 
