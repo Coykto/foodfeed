@@ -17,14 +17,14 @@ class Storage:
         )
         return json.loads(s3_response["Body"].read().decode("utf-8"))
 
-    def _put_object(self, bucket: str, key: str, data: Dict):
+    def _put_object(self, bucket: str, key: str, data: Union[List[dict], Dict]):
         return self.client.put_object(
             Bucket=bucket,
             Key=key,
             Body=json.dumps(data)
         )
 
-    def get_raw_venue(self, country: str, city: str, venue_slug: str):
+    def get_raw_venue(self, country: str, city: str, venue_slug: str) -> Dict:
         return self._get_object(
             settings.RAW_VENUES_BUCKET,
             f"{country}/{city}/restaurant/{venue_slug}.json"
@@ -37,7 +37,7 @@ class Storage:
             data
         )
 
-    def get_processed_venue(self, country: str, city: str, venue_slug: str):
+    def get_processed_venue(self, country: str, city: str, venue_slug: str) -> Dict:
         return self._get_object(
             settings.PROCESSED_VENUES_BUCKET,
             f"{country}/{city}/restaurant/{venue_slug}.json"
