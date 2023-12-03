@@ -18,3 +18,4 @@ test_integ_coverage.xml
 test_integ_results.xml
 
 .idea/
+.env

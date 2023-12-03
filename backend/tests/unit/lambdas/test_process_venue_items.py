@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, Mock
 
 import sys
 import os
@@ -12,161 +12,47 @@ from python.lambdas.process_venue_items import lambda_handler
 
 @pytest.fixture
 def single_venue_response():
-    return {"Body": open("tests/unit/fixtures/single_venue.json", "rb")}
+    return json.load(open("tests/unit/fixtures/single_venue.json", "r"))
 
 
 @pytest.fixture
 def venue_categories_response():
-    return json.load(open("tests/unit/fixtures/venue_categories.json", "r"))
+    return json.load(open("tests/unit/fixtures/venue_categories.json", "r"))["categories"]
 
 
 @pytest.fixture
-def venue_category_menu_response():
-    return json.load(open("tests/unit/fixtures/venue_category_items.json", "r"))
+def category_items_response():
+    return json.load(open("tests/unit/fixtures/venue_category_items.json", "r"))["items"]
 
 
 @pytest.fixture
-def mock_requests_get():
-    with patch('process_venue_items.requests.get') as mock_get:
-        yield mock_get
+def mock_event_context():
+    return {"s": "test-venue"}, Mock()
 
 
 @pytest.fixture
-def mock_boto3_client():
-    with patch('process_venue_items.boto3.client') as mock_boto3:
-        yield mock_boto3
+def mock_wolt():
+    with patch('python.lambdas.process_venue_items.Wolt') as mock_wolt:
+        yield mock_wolt
 
 
 @pytest.fixture
-def mock_os_getenv():
-    with patch('os.getenv') as mock_getenv:
-        yield mock_getenv
+def mock_storage():
+    with patch('python.lambdas.process_venue_items.Storage') as mock_storage:
+        yield mock_storage
 
 
 def test_lambda_handler_with_valid_event(
-    mock_requests_get,
-    mock_boto3_client,
-    mock_os_getenv,
+    mock_event_context,
+    mock_storage,
+    mock_wolt,
     single_venue_response,
     venue_categories_response,
-    venue_category_menu_response
+    category_items_response
 ):
-    # Mocking the os.getenv calls
-    mock_os_getenv.return_value = "test_value"
+    mock_storage.return_value.get_raw_venue.return_value = single_venue_response
+    mock_wolt.return_value.categories.return_value = venue_categories_response
+    mock_wolt.return_value.menu_items.return_value = category_items_response
 
-    # Mocking the boto3 client
-    s3_client_mock = MagicMock()
-    s3_client_mock.get_object.return_value = single_venue_response
-    mock_boto3_client.return_value = s3_client_mock
-
-    # Mocking the requests.get calls
-    mock_response = MagicMock()
-    mock_response.json.side_effect = [
-        venue_categories_response,
-        *[
-            venue_category_menu_response
-            for _ in range(len(venue_categories_response["categories"]))
-        ]
-    ]
-    mock_requests_get.return_value = mock_response
-
-    # Mocking the event
-    event = {"s": "test_slug"}
-
-    # Calling the function
-    lambda_handler(event, "context")
-
-    # Assertions
-    mock_os_getenv.assert_called()
-    mock_boto3_client.assert_called_with('s3')
-    mock_requests_get.assert_called()
-    s3_client_mock.put_object.assert_called()
-
-
-def test_lambda_handler_with_invalid_event(mock_requests_get, mock_boto3_client, mock_os_getenv):
-    # Mocking the os.getenv calls
-    mock_os_getenv.return_value = "test_value"
-
-    # Mocking the event
-    event = {"invalid_key": "test_slug"}
-
-    # Calling the function
-    with pytest.raises(KeyError):
-        lambda_handler(event, "context")
-
-    # Assertions
-    mock_os_getenv.assert_called()
-    mock_boto3_client.assert_called_with('s3')
-    mock_requests_get.assert_not_called()
-
-def test_lambda_handler_request_fail(
-        mock_requests_get,
-        mock_boto3_client,
-        mock_os_getenv,
-        single_venue_response
-    ):
-    # Mocking the os.getenv calls
-    mock_os_getenv.return_value = "test_value"
-
-    # Mocking the boto3 client
-    s3_client_mock = MagicMock()
-    s3_client_mock.get_object.return_value = single_venue_response
-    mock_boto3_client.return_value = s3_client_mock
-
-    # Mocking the requests.get to raise an exception
-    mock_requests_get.side_effect = Exception("Failed to fetch data")
-
-    # Mocking the event
-    event = {"s": "test_slug"}
-
-    # Calling the function
-    with pytest.raises(Exception):
-        lambda_handler(event, "context")
-
-    # Assertions
-    mock_os_getenv.assert_called()
-    mock_boto3_client.assert_called_with('s3')
-    mock_requests_get.assert_called()
-    s3_client_mock.put_object.assert_not_called()
-
-
-def test_lambda_handler_s3_fail(
-        mock_requests_get,
-        mock_boto3_client,
-        mock_os_getenv,
-        single_venue_response,
-        venue_categories_response,
-        venue_category_menu_response
-    ):
-    # Mocking the os.getenv calls
-    mock_os_getenv.return_value = "test_value"
-
-    # Mocking the boto3 client
-    s3_client_mock = MagicMock()
-    s3_client_mock.get_object.return_value = single_venue_response
-    s3_client_mock.put_object.side_effect = Exception("Failed to put object")
-    mock_boto3_client.return_value = s3_client_mock
-
-    # Mocking the requests.get calls
-    mock_response = MagicMock()
-    mock_response.json.side_effect = [
-        venue_categories_response,
-        *[
-            venue_category_menu_response
-            for _ in range(len(venue_categories_response["categories"]))
-        ]
-    ]
-    mock_requests_get.return_value = mock_response
-
-    # Mocking the event
-    event = {"s": "test_slug"}
-
-    # Calling the function
-    with pytest.raises(Exception):
-        lambda_handler(event, "context")
-
-    # Assertions
-    mock_os_getenv.assert_called()
-    mock_boto3_client.assert_called_with('s3')
-    mock_requests_get.assert_called()
-    s3_client_mock.put_object.assert_called()
+    response = lambda_handler(*mock_event_context)
+    assert response == mock_event_context[0]

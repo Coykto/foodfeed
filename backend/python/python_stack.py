@@ -26,16 +26,6 @@ class PythonStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
         self.openai_api_key = self.node.try_get_context('OPENAI_API_KEY')
-        print("openai_api_key", self.openai_api_key)
-
-        """
-        ingestion pipeline:
-        - one lambda to get venues in town
-        - one lambda to get all categories and their menu items from one venue
-        - parse results to individual menu items
-        - create embeddings for each menu item
-        - upload all menu items to OpenSearch with "enriched" flag set to False
-        """
 
         # ========================
         # Storage Infrastructure
@@ -114,7 +104,7 @@ class PythonStack(Stack):
             handler='process_venue_items.lambda_handler',
             timeout=Duration.seconds(60),
             environment={
-                "BASE_HOST": "https://restaurant-api.wolt.com/v4/venues/slug/",
+                "WOLT_API_BASE": "https://restaurant-api.wolt.com/v4/venues/slug/",
                 "VENUE_CATEGORIES_URI": "{venue}/menu/data",
                 "VENUE_MENU_URI": "{venue}/menu/categories/slug/{category}",
                 "RAW_VENUES_BUCKET": raw_venues_bucket.bucket_name,
@@ -151,13 +141,13 @@ class PythonStack(Stack):
         initialize_opensearch_task = tasks.LambdaInvoke(
             self, "Initialize Opensearch",
             lambda_function=initialize_opensearch,
-            result_selector={"statusCode.$": "$.Payload"},
-            output_path="$.statusCode"
+            output_path="$.Payload"
         )
 
         get_venues_task = tasks.LambdaInvoke(
             self, "Get Venues",
             lambda_function=get_venues,
+            input_path="$.Payload",
             output_path="$.Payload"
         )
 
@@ -184,13 +174,21 @@ class PythonStack(Stack):
             .next(embedd_and_upload_task)
         )
 
+        refresh_choice = (sfn.Choice(self, "Refresh?", input_path="$")
+            .when(
+                sfn.Condition.is_present("$.Payload[0]"),
+                process_each_venue_task
+            )
+            .otherwise(sfn.Succeed(self, "Nothing to ingest"))
+        )
+
         # Define the State Machine
         sfn.StateMachine(
             self, "FoodIngestionStateMachine",
             definition_body=sfn.DefinitionBody.from_chainable(
                 initialize_opensearch_task
                 .next(get_venues_task)
-                .next(process_each_venue_task)
+                .next(refresh_choice)
             )
         )
 
