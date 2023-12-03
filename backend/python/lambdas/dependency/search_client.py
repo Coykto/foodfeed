@@ -87,7 +87,7 @@ class Search:
             index=index_name,
             body={
                 "_source": {
-                    "includes": ["full_description"]
+                    "excludes": ["vector"]
                 },
                 "query": {
                     "bool": {
@@ -110,7 +110,7 @@ class Search:
                 }
             }
         )["hits"]["hits"]
-        return [hit["_source"]["full_description"] for hit in search_result]
+        return [hit["_source"] for hit in search_result]
 
 
 

@@ -135,6 +135,24 @@ class PythonStack(Stack):
         food_search_domain.grant_read_write(embedd_and_upload)
         processed_venues_bucket.grant_read(embedd_and_upload)
 
+        search = lambda_.Function(
+            self, 'search',
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.AssetCode.from_asset(
+                path.join(os.getcwd(), 'python/lambdas'),
+                exclude=["**", "!search.py"]
+            ),
+            handler='embedd_and_upload.lambda_handler',
+            timeout=Duration.seconds(300),
+            environment={
+                "OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint,
+                "OPENAI_API_KEY": self.openai_api_key
+            },
+            tracing=lambda_.Tracing.ACTIVE,
+            layers=[dependency_layer]
+        )
+        food_search_domain.grant_read_write(search)
+
         # ========================
         # State Machine Definition:
         # ========================
