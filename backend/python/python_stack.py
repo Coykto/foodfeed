@@ -142,7 +142,7 @@ class PythonStack(Stack):
                 path.join(os.getcwd(), 'python/lambdas'),
                 exclude=["**", "!search.py"]
             ),
-            handler='embedd_and_upload.lambda_handler',
+            handler='search.lambda_handler',
             timeout=Duration.seconds(300),
             environment={
                 "OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint,

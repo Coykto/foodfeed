@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     WOLT_API_BASE: Optional[str] = None
     VENUE_CATEGORIES_URI: Optional[str] = None
     VENUE_MENU_URI: Optional[str] = None
+    VENUE_DETAILS_URI: Optional[str] = None
     # misc
     REGION: str = "eu-west-1"
 

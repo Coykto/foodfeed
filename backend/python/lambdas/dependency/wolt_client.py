@@ -51,3 +51,19 @@ class Wolt:
                 "language": "en"
             }
         ).json()
+
+    def check_venue(self, venue_slug: str):
+        venue_info = requests.get(
+            settings.VENUE_DETAILS_URI.format(venue_slug=venue_slug),
+            params={
+                "lat": settings.LATITUDE,
+                "lon": settings.LONGITUDE,
+                "language": "en"
+            }
+        ).json()
+        venue_open = venue_info.get("venue", {}).get("open_status", {}).get("is_open", False)
+        delivery_open = venue_info.get("venue", {}).get("delivery_open_status", {}).get("is_open", False)
+        online = venue_info.get("venue", {}).get("online", False)
+        alive = venue_info.get("venue_raw", {}).get("alive", False)
+
+        return venue_open and delivery_open and online and alive
