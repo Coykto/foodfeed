@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 
 import boto3
 from .config.settings import settings
-from config.user_settings import user_settings
+from .config.user_settings import user_settings
 
 
 class Storage:
