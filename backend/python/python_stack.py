@@ -1,3 +1,4 @@
+import json
 from os import path
 import os
 from aws_cdk import (
@@ -39,16 +40,9 @@ class PythonStack(Stack):
                 master_node_instance_type='t3.small.search',
                 data_nodes=1,
                 data_node_instance_type='t3.small.search',
-            ),
-            access_policies=[
-                iam.PolicyStatement(
-                    actions=["es:*"],
-                    resources=["*"],
-                    effect=iam.Effect.ALLOW,
-                    principals=[iam.Group.from_group_name(self, "DevGroup", "admins")]
-                )
-            ]
+            )
         )
+        search_domain.grant_read_write(iam.Group.from_group_name(self, "DevGroup", "admins"))
 
         raw_venues_bucket = s3.Bucket(self, 'rawVenues')
         processed_venues_bucket = s3.Bucket(self, 'processedVenues')
