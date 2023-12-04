@@ -49,3 +49,16 @@ class Storage:
             f"{country}/{city}/restaurant/{venue_slug}.json",
             data
         )
+
+    def get_user_settings(self, user_id: str) -> Dict:
+        return self._get_object(
+            settings.USER_SETTINGS_BUCKET,
+            f"{user_id}_settings.json"
+        )
+
+    def put_user_settings(self, user_id: str, data: Dict):
+        return self._put_object(
+            settings.USER_SETTINGS_BUCKET,
+            f"{user_id}_settings.json",
+            data
+        )

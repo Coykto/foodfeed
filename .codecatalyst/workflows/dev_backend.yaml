@@ -66,13 +66,13 @@ Actions:
     DependsOn:
       - BackendCDKBootstrapAction
     Configuration:
-      StackName: FoodFeedBackendStack
+      StackName: Backend
       CdkRootPath: backend/
       CdkCliVersion: 2.110.0
       Region: eu-west-1
       Context: >
         {
-          "stack_name": "FoodFeedBackendStack", 
+          "stack_name": "Backend", 
           "OPENAI_API_KEY": "${Secrets.OPENAI_API_KEY}"
         }
     Environment:

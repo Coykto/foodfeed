@@ -538,6 +538,21 @@ files = [
 test = ["pytest (>=6)"]
 
 [[package]]
+name = "googletrans-py39"
+version = "4.0.2"
+description = "Free Google Translate API for Python. Translates totally free of charge."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "googletrans-py39-4.0.2.tar.gz", hash = "sha256:f6db7b1d8843e9f9c74e2a1eda59304bba1f0728fc5b5e269745548d351abdb1"},
+    {file = "googletrans_py39-4.0.2-py3-none-any.whl", hash = "sha256:2d24844d9b118b710bf47c8e95094f5fd1bbce1e3f19113031d5a47f0e0f67db"},
+]
+
+[package.dependencies]
+h2 = ">=4,<5"
+httpx = ">=0.22.0"
+
+[[package]]
 name = "h11"
 version = "0.14.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -546,6 +561,32 @@ python-versions = ">=3.7"
 files = [
     {file = "h11-0.14.0-py3-none-any.whl", hash = "sha256:e3fe4ac4b851c468cc8363d500db52c2ead036020723024a109d37346efaa761"},
     {file = "h11-0.14.0.tar.gz", hash = "sha256:8f19fbbe99e72420ff35c00b27a34cb9937e902a8b810e2c88300c6f0a3b699d"},
+]
+
+[[package]]
+name = "h2"
+version = "4.1.0"
+description = "HTTP/2 State-Machine based protocol implementation"
+optional = false
+python-versions = ">=3.6.1"
+files = [
+    {file = "h2-4.1.0-py3-none-any.whl", hash = "sha256:03a46bcf682256c95b5fd9e9a99c1323584c3eec6440d379b9903d709476bc6d"},
+    {file = "h2-4.1.0.tar.gz", hash = "sha256:a83aca08fbe7aacb79fec788c9c0bac936343560ed9ec18b82a13a12c28d2abb"},
+]
+
+[package.dependencies]
+hpack = ">=4.0,<5"
+hyperframe = ">=6.0,<7"
+
+[[package]]
+name = "hpack"
+version = "4.0.0"
+description = "Pure-Python HPACK header compression"
+optional = false
+python-versions = ">=3.6.1"
+files = [
+    {file = "hpack-4.0.0-py3-none-any.whl", hash = "sha256:84a076fad3dc9a9f8063ccb8041ef100867b1878b25ef0ee63847a5d53818a6c"},
+    {file = "hpack-4.0.0.tar.gz", hash = "sha256:fc41de0c63e687ebffde81187a948221294896f6bdc0ae2312708df339430095"},
 ]
 
 [[package]]
@@ -592,6 +633,17 @@ brotli = ["brotli", "brotlicffi"]
 cli = ["click (==8.*)", "pygments (==2.*)", "rich (>=10,<14)"]
 http2 = ["h2 (>=3,<5)"]
 socks = ["socksio (==1.*)"]
+
+[[package]]
+name = "hyperframe"
+version = "6.0.1"
+description = "HTTP/2 framing layer for Python"
+optional = false
+python-versions = ">=3.6.1"
+files = [
+    {file = "hyperframe-6.0.1-py3-none-any.whl", hash = "sha256:0ec6bafd80d8ad2195c4f03aacba3a8265e57bc4cff261e802bf39970ed02a15"},
+    {file = "hyperframe-6.0.1.tar.gz", hash = "sha256:ae510046231dc8e9ecb1a6586f63d2347bf4c8905914aa84ba585ae85f28a914"},
+]
 
 [[package]]
 name = "idna"
@@ -752,13 +804,13 @@ files = [
 
 [[package]]
 name = "moto"
-version = "4.2.10"
+version = "4.2.11"
 description = ""
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "moto-4.2.10-py2.py3-none-any.whl", hash = "sha256:5cf0736d1f43cb887498d00b00ae522774bfddb7db1f4994fedea65b290b9f0e"},
-    {file = "moto-4.2.10.tar.gz", hash = "sha256:92595fe287474a31ac3ef847941ebb097e8ffb0c3d6c106e47cf573db06933b2"},
+    {file = "moto-4.2.11-py2.py3-none-any.whl", hash = "sha256:58c12ab9ee69b6a5d1cddf83611ba4071508f07894317c57844b3ae6dc5bcd38"},
+    {file = "moto-4.2.11.tar.gz", hash = "sha256:2da62d52eaa765dfe2762c920f0a88a58f3a09e04581c91db967d92faec848f1"},
 ]
 
 [package.dependencies]
@@ -1453,4 +1505,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "3.9.*"
-content-hash = "7f86c03d12e9c1ffcbea29bd5b25eb1969d9137226d802c201828ca8de5d1dec"
+content-hash = "e447201a2835e41b08fe0ea5135a45664cd52d0a7c0cca467e4b3fbf141a9948"

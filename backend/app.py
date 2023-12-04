@@ -5,7 +5,7 @@ import aws_cdk as cdk
 
 from python.python_stack import PythonStack
 
-stack_name = 'FoodFeedBackendStack' if 'LOCAL_TESTING' not in os.environ else 'PythonStack'
+stack_name = 'BackendStack' if 'LOCAL_TESTING' not in os.environ else 'PythonStack'
 
 app = cdk.App()
 PythonStack(
