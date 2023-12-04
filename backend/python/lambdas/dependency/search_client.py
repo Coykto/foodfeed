@@ -12,12 +12,13 @@ from .config.settings import settings
 class Search:
 
     def __init__(self):
-        service = 'es'
-        credentials = boto3.Session().get_credentials()
-        auth = AWSV4SignerAuth(credentials, settings.REGION, service)
         self.client = OpenSearch(
             hosts=[{'host': settings.OPENSEARCH_ENDPOINT, 'port': 443}],
-            http_auth=auth,
+            http_auth=AWSV4SignerAuth(
+                credentials=boto3.Session().get_credentials(),
+                region=settings.REGION,
+                service='es'
+            ),
             use_ssl=True,
             verify_certs=True,
             connection_class=RequestsHttpConnection,

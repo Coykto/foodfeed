@@ -5,6 +5,7 @@ from aws_cdk import (
     Stack,
     CfnOutput
 )
+from aws_cdk import aws_iam as iam
 from constructs import Construct
 import aws_cdk.aws_lambda as lambda_
 import aws_cdk.aws_apigateway as apigateway
@@ -39,7 +40,15 @@ class PythonStack(Stack):
                 data_nodes=1,
                 data_node_instance_type='t3.small.search',
             ),
-            use_unsigned_basic_auth=True
+            use_unsigned_basic_auth=True,
+            access_policies=[
+                iam.PolicyStatement(
+                    actions=["es:*"],
+                    resources=["*"],
+                    effect=iam.Effect.ALLOW,
+                    principals=[iam.AccountRootPrincipal()]
+                )
+            ]
         )
 
         raw_venues_bucket = s3.Bucket(self, 'rawVenues')
