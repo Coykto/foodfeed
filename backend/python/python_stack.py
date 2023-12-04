@@ -1,3 +1,4 @@
+import json
 from os import path
 import os
 from aws_cdk import (
@@ -5,10 +6,10 @@ from aws_cdk import (
     Stack,
     CfnOutput
 )
+from aws_cdk import aws_iam as iam
 from constructs import Construct
 import aws_cdk.aws_lambda as lambda_
 import aws_cdk.aws_apigateway as apigateway
-import aws_cdk.aws_dynamodb as dynamodb
 import aws_cdk.aws_opensearchservice as opensearch
 import aws_cdk.aws_stepfunctions as sfn
 import aws_cdk.aws_stepfunctions_tasks as tasks
@@ -30,21 +31,22 @@ class PythonStack(Stack):
         # ========================
         # Storage Infrastructure
         # ========================
-        food_search_domain = opensearch.Domain(self, 'Domain',
+        search_domain = opensearch.Domain(self, 'food',
             version=opensearch.EngineVersion.OPENSEARCH_2_9,
-            domain_name='foodfeed-opensearch',
+            domain_name='food',
+            use_unsigned_basic_auth=True,
             capacity=opensearch.CapacityConfig(
                 master_nodes=2,
                 master_node_instance_type='t3.small.search',
                 data_nodes=1,
                 data_node_instance_type='t3.small.search',
-            ),
-            use_unsigned_basic_auth=True
+            )
         )
+        search_domain.grant_read_write(iam.Group.from_group_name(self, "DevGroup", "admins"))
 
         raw_venues_bucket = s3.Bucket(self, 'rawVenues')
         processed_venues_bucket = s3.Bucket(self, 'processedVenues')
-        enriched_venues_bucket = s3.Bucket(self, 'enrichedVenues')  # TODO: enrichment process (read images)
+        user_settings_bucket = s3.Bucket(self, 'userSettings')
 
         # ========================
         # Lambdas Definitions
@@ -68,11 +70,11 @@ class PythonStack(Stack):
             ),
             handler='initialize_opensearch.lambda_handler',
             timeout=Duration.seconds(30),
-            environment={"OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint},
+            environment={"OPENSEARCH_ENDPOINT": search_domain.domain_endpoint},
             tracing=lambda_.Tracing.ACTIVE,
             layers=[dependency_layer]
         )
-        food_search_domain.grant_read_write(initialize_opensearch)
+        search_domain.grant_read_write(initialize_opensearch)
 
         get_venues = lambda_.Function(self,'getVenues',
             runtime=lambda_.Runtime.PYTHON_3_9,
@@ -83,7 +85,7 @@ class PythonStack(Stack):
             handler='get_venues.lambda_handler',
             timeout=Duration.seconds(60),
             environment={
-                "OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint,
+                "OPENSEARCH_ENDPOINT": search_domain.domain_endpoint,
                 "VENUES_ENDPOINT": "https://consumer-api.wolt.com/v1/pages/restaurants",
                 "LATITUDE": "41.72484116869996",
                 "LONGITUDE": "44.72807697951794",
@@ -93,7 +95,7 @@ class PythonStack(Stack):
             layers=[dependency_layer]
         )
         raw_venues_bucket.grant_read_write(get_venues)
-        food_search_domain.grant_read_write(get_venues)
+        search_domain.grant_read_write(get_venues)
 
         process_venue_items = lambda_.Function(self,'getVenueItems',
             runtime=lambda_.Runtime.PYTHON_3_9,
@@ -125,18 +127,63 @@ class PythonStack(Stack):
             handler='embedd_and_upload.lambda_handler',
             timeout=Duration.seconds(300),
             environment={
-                "OPENSEARCH_ENDPOINT": food_search_domain.domain_endpoint,
+                "OPENSEARCH_ENDPOINT": search_domain.domain_endpoint,
                 "OPENAI_API_KEY": self.openai_api_key,
                 "PROCESSED_VENUES_BUCKET": processed_venues_bucket.bucket_name,
             },
             tracing=lambda_.Tracing.ACTIVE,
             layers=[dependency_layer]
         )
-        food_search_domain.grant_read_write(embedd_and_upload)
+        search_domain.grant_read_write(embedd_and_upload)
         processed_venues_bucket.grant_read(embedd_and_upload)
+
+        search = lambda_.Function(
+            self, 'search',
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.AssetCode.from_asset(
+                path.join(os.getcwd(), 'python/lambdas'),
+                exclude=["**", "!search.py"]
+            ),
+            handler='search.lambda_handler',
+            timeout=Duration.seconds(300),
+            environment={
+                "OPENSEARCH_ENDPOINT": search_domain.domain_endpoint,
+                "OPENAI_API_KEY": self.openai_api_key,
+                "USER_SETTINGS_BUCKET":  user_settings_bucket.bucket_name,
+            },
+            tracing=lambda_.Tracing.ACTIVE,
+            layers=[dependency_layer]
+        )
+        search_domain.grant_read_write(search)
+        user_settings_bucket.grant_read_write(search)
+
+        consult = lambda_.Function(
+            self, 'consult',
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.AssetCode.from_asset(
+                path.join(os.getcwd(), 'python/lambdas'),
+                exclude=["**", "!consult.py"]
+            ),
+            handler='consult.lambda_handler',
+            timeout=Duration.seconds(300),
+            environment={
+                "OPENAI_API_KEY": self.openai_api_key,
+                "USER_SETTINGS_BUCKET": user_settings_bucket.bucket_name,
+                "VENUE_DETAILS_URI": "https://consumer-api.wolt.com/order-xp/web/v1/venue/slug/{venue_slug}/dynamic/",
+                "LATITUDE": "41.72484116869996",
+                "LONGITUDE": "44.72807697951794",
+            },
+            tracing=lambda_.Tracing.ACTIVE,
+            layers=[dependency_layer]
+        )
+        user_settings_bucket.grant_read_write(consult)
 
         # ========================
         # State Machine Definition:
+        # ========================
+        #
+        # ========================
+        # Ingestion
         # ========================
         initialize_opensearch_task = tasks.LambdaInvoke(
             self, "Initialize Opensearch",
@@ -184,7 +231,7 @@ class PythonStack(Stack):
 
         # Define the State Machine
         sfn.StateMachine(
-            self, "FoodIngestionStateMachine",
+            self, "IngestMachine",
             definition_body=sfn.DefinitionBody.from_chainable(
                 initialize_opensearch_task
                 .next(get_venues_task)
@@ -192,39 +239,40 @@ class PythonStack(Stack):
             )
         )
 
-
-
-
-
-
-
-
-
         # ========================
-        ddb = dynamodb.Table(self, 'TodosDB',
-            partition_key=dynamodb.Attribute(
-                name='id',
-                type=dynamodb.AttributeType.STRING
+        # Search
+        # ========================
+        search_task = tasks.LambdaInvoke(
+            self, "Search",
+            lambda_function=search
+        )
+        consult_task = tasks.LambdaInvoke(
+            self, "Consult",
+            lambda_function=consult
+        )
+        sfn.StateMachine(
+            self, "SearchMachine",
+            definition_body=sfn.DefinitionBody.from_chainable(
+                search_task
+                .next(consult_task)
             )
         )
 
-        getTodos = lambda_.Function(self, 'getTodos',
-            runtime=lambda_.Runtime.PYTHON_3_10,
-            code=lambda_.AssetCode.from_asset(path.join(os.getcwd(), 'python/lambdas')),
-            handler='get_todos.lambda_handler',
-            environment={
-                "DDB_TABLE": ddb.table_name,
-                "SEARCH_ENDPOINT": food_search_domain.domain_endpoint
-            },
-            tracing=lambda_.Tracing.ACTIVE
-        )
-        ddb.grant_read_data(getTodos)
+
+
+
+
+
+
+
+
+
 
         apiGateway = apigateway.RestApi(self, 'ApiGateway',
             default_cors_preflight_options=apigateway.CorsOptions(
                 allow_credentials=True,
                 allow_origins=apigateway.Cors.ALL_ORIGINS,
-                allow_methods=["GET", "PUT", "DELETE", "OPTIONS"],
+                allow_methods=["GET", "PUT"],
                 allow_headers=["Content-Type", "Authorization", "Content-Length", "X-Requested-With"]
             )
         )
@@ -239,7 +287,7 @@ class PythonStack(Stack):
                 allow_headers=["Content-Type", "Authorization", "Content-Length", "X-Requested-With"]
             )
         )
-        todos.add_method('GET', apigateway.LambdaIntegration(getTodos))
+        # todos.add_method('GET', apigateway.LambdaIntegration(getTodos))
 
         CfnOutput(self, ApiGatewayEndpointStackOutput,
             value=apiGateway.url

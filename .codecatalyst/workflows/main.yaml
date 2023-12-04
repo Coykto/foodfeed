@@ -68,13 +68,13 @@ Actions:
     DependsOn:
       - BackendCDKBootstrapAction
     Configuration:
-      StackName: FoodFeedBackendStack
+      StackName: Backend
       CdkRootPath: backend/
       CdkCliVersion: 2.110.0
       Region: eu-west-1
       Context: >
         {
-          "stack_name": "FoodFeedBackendStack", 
+          "stack_name": "Backend", 
           "OPENAI_API_KEY": "${Secrets.OPENAI_API_KEY}"
         }
     Environment:
@@ -145,9 +145,9 @@ Actions:
     DependsOn:
       - FrontendCDKBootstrapAction
     Configuration:
-      StackName: FoodFeedFrontendStack
+      StackName: FrontendStack
       Region: eu-west-1
-      Context: '{"stack_name": "FoodFeedFrontendStack", "api_domain": "${BackendCDKDeploy.ApiDomain}", "api_stage": "${BackendCDKDeploy.ApiStage}"}'
+      Context: '{"stack_name": "FrontendStack", "api_domain": "${BackendCDKDeploy.ApiDomain}", "api_stage": "${BackendCDKDeploy.ApiStage}"}'
       CdkRootPath: frontend/cdk
     Environment:
       Name: main_environment

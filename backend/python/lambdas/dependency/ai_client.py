@@ -1,3 +1,4 @@
+import json
 from typing import List
 
 import openai
@@ -40,3 +41,14 @@ class AI:
                 max_attempts,
                 attempt + 1
             )
+
+    def chat(self, primer, query):
+        res = self.client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": primer},
+                {"role": "user", "content": query}
+            ],
+            temperature=0.7
+        )
+        return res.choices[0].message.content

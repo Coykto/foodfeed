@@ -1,9 +1,11 @@
 import json
 import os
 from typing import List, Dict, Union
+from botocore.exceptions import ClientError
 
 import boto3
 from .config.settings import settings
+from .config.user_settings import user_settings
 
 
 class Storage:
@@ -47,5 +49,25 @@ class Storage:
         return self._put_object(
             settings.PROCESSED_VENUES_BUCKET,
             f"{country}/{city}/restaurant/{venue_slug}.json",
+            data
+        )
+
+    def get_user_settings(self, user_id: str) -> Dict:
+        try:
+            return self._get_object(
+                settings.USER_SETTINGS_BUCKET,
+                f"{user_id}_settings.json"
+            )
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'NoSuchKey':
+                default_settings = user_settings
+                self.put_user_settings(user_id, default_settings)
+                return default_settings
+            raise e
+
+    def put_user_settings(self, user_id: str, data: Dict):
+        return self._put_object(
+            settings.USER_SETTINGS_BUCKET,
+            f"{user_id}_settings.json",
             data
         )

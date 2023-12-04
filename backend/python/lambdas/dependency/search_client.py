@@ -1,5 +1,6 @@
 from .config.food_index import index_settings
 from opensearchpy import OpenSearch, AWSV4SignerAuth, RequestsHttpConnection
+from googletrans import Translator, LANGUAGES
 
 from typing import List
 import boto3
@@ -11,12 +12,13 @@ from .config.settings import settings
 class Search:
 
     def __init__(self):
-        service = 'es'
-        credentials = boto3.Session().get_credentials()
-        auth = AWSV4SignerAuth(credentials, settings.REGION, service)
         self.client = OpenSearch(
             hosts=[{'host': settings.OPENSEARCH_ENDPOINT, 'port': 443}],
-            http_auth=auth,
+            http_auth=AWSV4SignerAuth(
+                credentials=boto3.Session().get_credentials(),
+                region=settings.REGION,
+                service='es'
+            ),
             use_ssl=True,
             verify_certs=True,
             connection_class=RequestsHttpConnection,
@@ -80,24 +82,41 @@ class Search:
         )
         return 201
 
-    def search_menu(self, index_name: str, vector: List[float], size: int = 10, max_price: int = 3000) -> List[dict]:
+    def search_menu(self, index_name: str, vector: List[float], search_settings: dict, size: int = 10) -> List[dict]:
         search_result = self.client.search(
             timeout=60,
             size=size,
             index=index_name,
             body={
                 "_source": {
-                    "includes": ["full_description"]
+                    "excludes": ["vector"]
                 },
                 "query": {
                     "bool": {
-                        "filter": {
-                            "range": {
-                                "price": {
-                                    "lte": max_price
+                        "filter": [
+                            {
+                                "range": {
+                                    "price": {
+                                        "lte": search_settings["max_price"],
+                                        "gte": search_settings["min_price"]
+                                    }
+                                }
+                            },
+                            {
+                                "range": {
+                                    "estimate": {
+                                        "lte": search_settings["max_delivery_time"]
+                                    }
+                                }
+                            },
+                            {
+                                "range": {
+                                    "venue_rating": {
+                                        "gte": search_settings["min_rating"]
+                                    }
                                 }
                             }
-                        },
+                        ],
                         "must": {
                             "knn": {
                                 "vector": {
@@ -110,7 +129,19 @@ class Search:
                 }
             }
         )["hits"]["hits"]
-        return [hit["_source"]["full_description"] for hit in search_result]
+        return [hit["_source"] for hit in search_result]
 
-
-
+    @classmethod
+    def detect_and_translate(cls, query: str, to_lang:str = "en", max_attempts: int = 3, attempt: int = 0):
+        try:
+            translator = Translator()
+            detected_language = translator.detect(query).lang
+            if detected_language != to_lang:
+                translated = translator.translate(query, src=detected_language, dest=to_lang)
+                return translated.text
+            else:
+                return query, LANGUAGES.get(detected_language, 'unknown').capitalize()
+        except Exception as e:
+            if attempt > max_attempts:
+                raise e
+            return cls.detect_and_translate(query, to_lang, max_attempts, attempt + 1)
