@@ -93,20 +93,30 @@ class Search:
                 },
                 "query": {
                     "bool": {
-                        "filter": {
-                            "range": {
-                                "price": {
-                                    "lte": search_settings["max_price"],
-                                    "gte": search_settings["min_price"],
-                                },
-                                "estimate": {
-                                    "lte": search_settings["max_delivery_time"],
-                                },
-                                "venue_rating": {
-                                    "gte": search_settings["min_rating"],
-                                },
+                        "filter": [
+                            {
+                                "range": {
+                                    "price": {
+                                        "lte": search_settings["max_price"],
+                                        "gte": search_settings["min_price"]
+                                    }
+                                }
+                            },
+                            {
+                                "range": {
+                                    "estimate": {
+                                        "lte": search_settings["max_delivery_time"]
+                                    }
+                                }
+                            },
+                            {
+                                "range": {
+                                    "venue_rating": {
+                                        "gte": search_settings["min_rating"]
+                                    }
+                                }
                             }
-                        },
+                        ],
                         "must": {
                             "knn": {
                                 "vector": {

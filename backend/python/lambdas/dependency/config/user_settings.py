@@ -12,6 +12,6 @@ user_settings = {
     },
     "previous_orders": [],
     "previous_queries": [],
-    "min_rating": 8.0,
+    "min_rating": 9.0,
     "past_orders_max_length": 10,
 }

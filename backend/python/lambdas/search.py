@@ -44,9 +44,7 @@ def lambda_handler(event, context):
     )
 
     return {
-        'Payload': {
-            "search_result":search_result,
-            "user_settings": user_settings,
-            "query": query
-        }
+        "search_result":search_result,
+        "user_settings": user_settings,
+        "query": query
     }

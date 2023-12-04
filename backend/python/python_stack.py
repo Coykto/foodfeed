@@ -10,7 +10,6 @@ from aws_cdk import aws_iam as iam
 from constructs import Construct
 import aws_cdk.aws_lambda as lambda_
 import aws_cdk.aws_apigateway as apigateway
-import aws_cdk.aws_dynamodb as dynamodb
 import aws_cdk.aws_opensearchservice as opensearch
 import aws_cdk.aws_stepfunctions as sfn
 import aws_cdk.aws_stepfunctions_tasks as tasks
@@ -35,6 +34,7 @@ class PythonStack(Stack):
         search_domain = opensearch.Domain(self, 'food',
             version=opensearch.EngineVersion.OPENSEARCH_2_9,
             domain_name='food',
+            use_unsigned_basic_auth=True,
             capacity=opensearch.CapacityConfig(
                 master_nodes=2,
                 master_node_instance_type='t3.small.search',
@@ -244,15 +244,11 @@ class PythonStack(Stack):
         # ========================
         search_task = tasks.LambdaInvoke(
             self, "Search",
-            lambda_function=search,
-            input_path="$.Payload",
-            output_path="$.Payload"
+            lambda_function=search
         )
         consult_task = tasks.LambdaInvoke(
             self, "Consult",
-            lambda_function=consult,
-            input_path="$.Payload",
-            output_path="$.Payload"
+            lambda_function=consult
         )
         sfn.StateMachine(
             self, "SearchMachine",
