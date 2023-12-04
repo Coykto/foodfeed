@@ -31,9 +31,9 @@ class PythonStack(Stack):
         # ========================
         # Storage Infrastructure
         # ========================
-        search_domain = opensearch.Domain(self, 'Domain',
+        search_domain = opensearch.Domain(self, 'Food',
             version=opensearch.EngineVersion.OPENSEARCH_2_9,
-            domain_name='foodfeed-opensearch',
+            domain_name='food',
             capacity=opensearch.CapacityConfig(
                 master_nodes=2,
                 master_node_instance_type='t3.small.search',
