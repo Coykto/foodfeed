@@ -40,13 +40,12 @@ class PythonStack(Stack):
                 data_nodes=1,
                 data_node_instance_type='t3.small.search',
             ),
-            use_unsigned_basic_auth=True,
             access_policies=[
                 iam.PolicyStatement(
                     actions=["es:*"],
                     resources=["*"],
                     effect=iam.Effect.ALLOW,
-                    principals=[iam.AnyPrincipal()]
+                    principals=[iam.Group.from_group_name(self, "DevGroup", "admins")]
                 )
             ]
         )
