@@ -32,7 +32,7 @@ class PythonStack(Stack):
         # ========================
         # Storage Infrastructure
         # ========================
-        search_domain = opensearch.Domain(self, 'Food',
+        search_domain = opensearch.Domain(self, 'food',
             version=opensearch.EngineVersion.OPENSEARCH_2_9,
             domain_name='food',
             capacity=opensearch.CapacityConfig(
