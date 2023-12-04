@@ -46,7 +46,7 @@ class PythonStack(Stack):
                     actions=["es:*"],
                     resources=["*"],
                     effect=iam.Effect.ALLOW,
-                    principals=[iam.AccountRootPrincipal()]
+                    principals=[iam.AnyPrincipal()]
                 )
             ]
         )
