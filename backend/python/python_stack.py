@@ -312,6 +312,7 @@ class PythonStack(Stack):
             timeout=Duration.seconds(30),
             layers=[dependency_layer]
         )
+        search_machine.grant_start_execution(auth)
 
         authorize = apigateway.TokenAuthorizer(
             self, 'Authorizer',
