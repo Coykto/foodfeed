@@ -25,6 +25,7 @@ class Consultant:
             f'{idx + 1}. {item["full_description"]}\nslug: {item["full_slug"]}'
             for idx, item in enumerate(self._filter_menu_items(menu_items))
         ]
+        previous_orders = [f'{idx + 1}. {item["desc"]}' for idx, item in enumerate(previous_orders)]
 
         menu = "Menu Items:\n" + "\n\n---\n\n".join(items_description) + "\n\n-----\n\n"
         previous_orders = "Previous Orders:\n" + "\n\n---\n\n".join(previous_orders) + "\n\n-----\n\n"
