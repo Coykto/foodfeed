@@ -205,7 +205,7 @@ class PythonStack(Stack):
             environment={
                 "TELEGRAM_REQUEST_HEADER": self.telegram_secret_header
             },
-            handler='authorizer.lambda_handler',
+            handler='authorize.lambda_handler',
             timeout=Duration.seconds(30),
         )
 
