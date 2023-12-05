@@ -1,6 +1,7 @@
 user_settings = {
     "consultant": "default",
     "language": "en",
+    "user_id": None,
     "user_name": None,
     "user_email": None,
     "max_price": 3000,

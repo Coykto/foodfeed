@@ -27,7 +27,7 @@ def lambda_handler(event, context):
         user_settings["previous_orders"].append({"desc": desc})
 
     storage = Storage()
-    storage.put_user_settings(user_id=event["user_id"], data=user_settings)
+    storage.put_user_settings(user_id=user_settings["user_id"], data=user_settings)
 
     return {
         'Payload': {
