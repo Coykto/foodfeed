@@ -136,11 +136,12 @@ class Search:
         try:
             translator = Translator()
             detected_language = translator.detect(query).lang
+            lang = LANGUAGES.get(detected_language, 'unknown').capitalize()
             if detected_language != to_lang:
                 translated = translator.translate(query, src=detected_language, dest=to_lang)
-                return translated.text
+                return translated.text, lang
             else:
-                return query, LANGUAGES.get(detected_language, 'unknown').capitalize()
+                return query, lang
         except Exception as e:
             if attempt > max_attempts:
                 raise e
