@@ -12,11 +12,13 @@ def lambda_handler(event, context):
     item_url = event["url"]
     reason = event["reason"]
     user_id = event["user_id"]
+    logger.info(f"TELEGRAM_API_URL: {settings.TELEGRAM_API_URL}")
 
-    requests.post(
+    res = requests.post(
         f"{settings.TELEGRAM_API_URL}/sendMessage",
         data={
             "chat_id": user_id,
             "text": f"{reason}\n{item_url}",
         }
     )
+    logger.info(f"Response: {res}")
