@@ -11,6 +11,7 @@ from uuid import uuid4
 from aws_cdk import aws_iam as iam
 from constructs import Construct
 import aws_cdk.aws_lambda as lambda_
+from aws_cdk import aws_logs as logs
 import aws_cdk.aws_apigateway as apigateway
 import aws_cdk.aws_opensearchservice as opensearch
 import aws_cdk.aws_stepfunctions as sfn
@@ -280,7 +281,7 @@ class PythonStack(Stack):
         search_task = tasks.LambdaInvoke(
             self, "Search",
             lambda_function=search,
-            output_path="$.Payload"
+            output_path="$.Payload",
         )
         consult_task = tasks.LambdaInvoke(
             self, "Consult",
@@ -298,6 +299,11 @@ class PythonStack(Stack):
                 search_task
                 .next(consult_task)
                 .next(send_result_task)
+            ),
+            logs=sfn.LogOptions(
+                destination=logs.LogGroup(self, "SearchMachineLogGroup"),
+                include_execution_data=True,
+                level=sfn.LogLevel.ALL
             )
         )
 
