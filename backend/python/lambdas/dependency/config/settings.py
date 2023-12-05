@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     TELEGRAM_TOKEN: Optional[str] = None
     TELEGRAM_REQUEST_HEADER: Optional[str] = None
     # misc
+    SEARCH_MACHINE_ARN: Optional[str] = None
     REGION: str = "eu-west-1"
 
     def __getattr__(self, name):

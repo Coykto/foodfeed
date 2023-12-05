@@ -17,7 +17,7 @@ def lambda_handler(event, context):
 
     sfn_client = boto3.client('stepfunctions')
     sfn_client.start_execution(
-        stateMachineArn=sfn.StateMachine.from_state_machine_name("SearchMachine").state_machine_arn,
+        stateMachineArn=settings.SEARCH_MACHINE_ARN,
         input=json.dumps(event)
     )
 

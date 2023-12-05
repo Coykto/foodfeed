@@ -199,20 +199,7 @@ class PythonStack(Stack):
             layers=[dependency_layer]
         )
 
-        auth = lambda_.Function(
-            self, 'Authorize',
-            runtime=lambda_.Runtime.PYTHON_3_9,
-            code=lambda_.AssetCode.from_asset(
-                path.join(os.getcwd(), 'python/lambdas'),
-                exclude=["**", "!authorize.py"]
-            ),
-            environment={
-                "TELEGRAM_REQUEST_HEADER": self.telegram_secret_header
-            },
-            handler='authorize.lambda_handler',
-            timeout=Duration.seconds(30),
-            layers=[dependency_layer]
-        )
+
 
         # ========================
         # State Machine Definition:
@@ -292,7 +279,7 @@ class PythonStack(Stack):
             self, "SendResult",
             lambda_function=send_search_result,
         )
-        sfn.StateMachine(
+        search_machine = sfn.StateMachine(
             self, "SearchMachine",
             state_machine_type=sfn.StateMachineType.STANDARD,
             definition_body=sfn.DefinitionBody.from_chainable(
@@ -310,6 +297,22 @@ class PythonStack(Stack):
         # ========================
         # API Definition:
         # ========================
+        auth = lambda_.Function(
+            self, 'Authorize',
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.AssetCode.from_asset(
+                path.join(os.getcwd(), 'python/lambdas'),
+                exclude=["**", "!authorize.py"]
+            ),
+            environment={
+                "TELEGRAM_REQUEST_HEADER": self.telegram_secret_header,
+                "SEARCH_MACHINE_ARN": search_machine.state_machine_arn,
+            },
+            handler='authorize.lambda_handler',
+            timeout=Duration.seconds(30),
+            layers=[dependency_layer]
+        )
+
         authorize = apigateway.TokenAuthorizer(
             self, 'Authorizer',
             handler=auth,
