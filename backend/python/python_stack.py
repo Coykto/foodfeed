@@ -244,7 +244,8 @@ class PythonStack(Stack):
         # ========================
         search_task = tasks.LambdaInvoke(
             self, "Search",
-            lambda_function=search
+            lambda_function=search,
+            output_path="$.Payload"
         )
         consult_task = tasks.LambdaInvoke(
             self, "Consult",
