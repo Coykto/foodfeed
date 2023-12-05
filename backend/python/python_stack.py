@@ -207,6 +207,7 @@ class PythonStack(Stack):
             },
             handler='authorize.lambda_handler',
             timeout=Duration.seconds(30),
+            layers=[dependency_layer]
         )
 
         # ========================
