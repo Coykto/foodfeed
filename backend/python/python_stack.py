@@ -6,6 +6,8 @@ from aws_cdk import (
     Stack,
     CfnOutput
 )
+from uuid import uuid4
+
 from aws_cdk import aws_iam as iam
 from constructs import Construct
 import aws_cdk.aws_lambda as lambda_
@@ -26,7 +28,9 @@ class PythonStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
-        self.openai_api_key = self.node.try_get_context('OPENAI_API_KEY')
+        self.openai_api_key = self.node.try_get_context("OPENAI_API_KEY")
+        self.telegram_secret_header = str(uuid4())
+        self.telegram_token = self.node.try_get_context("TELEGRAM_TOKEN")
 
         # ========================
         # Storage Infrastructure
@@ -178,6 +182,33 @@ class PythonStack(Stack):
         )
         user_settings_bucket.grant_read_write(consult)
 
+        send_search_result = lambda_.Function(
+            self, 'consult',
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.AssetCode.from_asset(
+                path.join(os.getcwd(), 'python/lambdas'),
+                exclude=["**", "!send_search_result.py"]
+            ),
+            handler='send_search_result.lambda_handler',
+            timeout=Duration.seconds(300),
+            tracing=lambda_.Tracing.ACTIVE,
+            layers=[dependency_layer]
+        )
+
+        auth = lambda_.Function(
+            self, 'Authorize',
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.AssetCode.from_asset(
+                path.join(os.getcwd(), 'python/lambdas'),
+                exclude=["**", "!authorize.py"]
+            ),
+            environment={
+                "TELEGRAM_REQUEST_HEADER": self.telegram_secret_header
+            },
+            handler='authorizer.lambda_handler',
+            timeout=Duration.seconds(30),
+        )
+
         # ========================
         # State Machine Definition:
         # ========================
@@ -249,46 +280,53 @@ class PythonStack(Stack):
         )
         consult_task = tasks.LambdaInvoke(
             self, "Consult",
-            lambda_function=consult
+            lambda_function=consult,
+            output_path="$.Payload"
         )
-        sfn.StateMachine(
+        send_result_task = tasks.LambdaInvoke(
+            self, "SendResult",
+            lambda_function=send_search_result,
+        )
+        search_machine = sfn.StateMachine(
             self, "SearchMachine",
+            state_machine_type=sfn.StateMachineType.EXPRESS,
             definition_body=sfn.DefinitionBody.from_chainable(
                 search_task
                 .next(consult_task)
+                .next(send_result_task)
             )
         )
 
-
-
-
-
-
-
-
-
-
+        # ========================
+        # API Definition:
+        # ========================
+        authorize = apigateway.TokenAuthorizer(
+            self, 'Authorizer',
+            handler=auth,
+            identity_source=apigateway.IdentitySource.header('X-Telegram-Bot-Api-Secret-Token'),
+        )
 
         apiGateway = apigateway.RestApi(self, 'ApiGateway',
             default_cors_preflight_options=apigateway.CorsOptions(
                 allow_credentials=True,
                 allow_origins=apigateway.Cors.ALL_ORIGINS,
-                allow_methods=["GET", "PUT"],
-                allow_headers=["Content-Type", "Authorization", "Content-Length", "X-Requested-With"]
+                allow_headers=[
+                    "Content-Type",
+                    "Authorization",
+                    "Content-Length",
+                    "X-Requested-With",
+                    "X-Telegram-Bot-Api-Secret-Token",
+                ]
             )
         )
 
         api = apiGateway.root.add_resource('api')
-
-        todos = api.add_resource('todos',
-            default_cors_preflight_options=apigateway.CorsOptions(
-                allow_credentials=True,
-                allow_origins=apigateway.Cors.ALL_ORIGINS,
-                allow_methods=["GET", "PUT", "DELETE", "OPTIONS"],
-                allow_headers=["Content-Type", "Authorization", "Content-Length", "X-Requested-With"]
-            )
+        api.add_method(
+            'POST',
+            apigateway.StepFunctionsIntegration.start_execution(search_machine),
+            authorizer=authorize
         )
-        # todos.add_method('GET', apigateway.LambdaIntegration(getTodos))
+        self.api_gateway_url = apiGateway.url
 
         CfnOutput(self, ApiGatewayEndpointStackOutput,
             value=apiGateway.url
@@ -301,3 +339,4 @@ class PythonStack(Stack):
         CfnOutput(self, ApiGatewayStageStackOutput,
             value=apiGateway.deployment_stage.stage_name
         )
+

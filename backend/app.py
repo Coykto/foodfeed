@@ -2,13 +2,14 @@
 import os
 
 import aws_cdk as cdk
+from telegram import bot_setup
 
 from python.python_stack import PythonStack
 
 stack_name = 'Backend' if 'LOCAL_TESTING' not in os.environ else 'PythonStack'
 
 app = cdk.App()
-PythonStack(
+backend_stack = PythonStack(
     app,
     stack_name,
     # If you don't specify 'env', this stack will be environment-agnostic.
@@ -31,5 +32,9 @@ PythonStack(
     # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
     )
 
-
+bot_setup(
+    telegram_api_token=backend_stack.telegram_token,
+    telegram_secret_header=backend_stack.telegram_secret_header,
+    api_gateway_url=backend_stack.api_gateway_url
+)
 app.synth()

@@ -8,6 +8,11 @@ logger.setLevel(logging.INFO)
 
 
 def lambda_handler(event, context):
+    logger.info(event)
+    logger.info(context)
+    # user_id = req["message"]["chat"]["id"]
+    # query = req["message"]["text"]
+
     query = event.get("query", event["q"])
     if query is None:
         return {

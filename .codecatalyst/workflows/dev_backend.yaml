@@ -73,7 +73,8 @@ Actions:
       Context: >
         {
           "stack_name": "Backend", 
-          "OPENAI_API_KEY": "${Secrets.OPENAI_API_KEY}"
+          "OPENAI_API_KEY": "${Secrets.OPENAI_API_KEY}",
+          "TELEGRAM_TOKEN": "${Secrets.TELEGRAM_TOKEN}"
         }
     Environment:
       Name: dev_environment

@@ -13,6 +13,7 @@ def lambda_handler(event, context):
     search_result = event["search_result"]
     user_settings = event["user_settings"]
     query = event["query"]
+    user_id = user_settings["user_id"]
 
     consultant = Consultant(user_settings)
     consultation = consultant.consult(search_result, query, user_settings)
@@ -27,11 +28,10 @@ def lambda_handler(event, context):
         user_settings["previous_orders"].append({"desc": desc})
 
     storage = Storage()
-    storage.put_user_settings(user_id=user_settings["user_id"], data=user_settings)
+    storage.put_user_settings(user_id=user_id, data=user_settings)
 
     return {
-        'Payload': {
-            "url": item_url,
-            "reason": reason,
-        }
+        "url": item_url,
+        "reason": reason,
+        "user_id": user_id,
     }

@@ -9,7 +9,10 @@ from python.python_stack import PythonStack
 
 def test_resources_created():
     app = core.App(
-        context={'OPENAI_API_KEY': "openai_api_key"}
+        context={
+            'OPENAI_API_KEY': "openai_api_key",
+            'TELEGRAM_TOKEN': "telegram_token",
+        }
     )
     stack = PythonStack(app, "python")
     template = assertions.Template.from_stack(stack)
