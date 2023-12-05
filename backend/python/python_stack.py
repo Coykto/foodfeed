@@ -183,7 +183,7 @@ class PythonStack(Stack):
         user_settings_bucket.grant_read_write(consult)
 
         send_search_result = lambda_.Function(
-            self, 'consult',
+            self, 'sendSearchResult',
             runtime=lambda_.Runtime.PYTHON_3_9,
             code=lambda_.AssetCode.from_asset(
                 path.join(os.getcwd(), 'python/lambdas'),

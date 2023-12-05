@@ -18,6 +18,6 @@ def test_resources_created():
     template = assertions.Template.from_stack(stack)
 
     template.resource_count_is("AWS::S3::Bucket", 3)
-    template.resource_count_is("AWS::Lambda::Function", 7)
+    template.resource_count_is("AWS::Lambda::Function", 9)
     template.resource_count_is("AWS::OpenSearchService::Domain", 1)
     template.resource_count_is("AWS::ApiGateway::RestApi", 1)
