@@ -2,7 +2,6 @@ import json
 import logging
 
 import boto3
-from aws_cdk import aws_stepfunctions as sfn
 
 from dependency.config.settings import settings
 
