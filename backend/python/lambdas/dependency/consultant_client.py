@@ -21,7 +21,10 @@ class Consultant:
         return [item for item in menu_items if self.wolt.check_venue(item["venue_slug"])]
 
     def _augment_query(self, query: str, menu_items: List, previous_orders: List) -> str:
-        items_description = [item["full_description"] for item in self._filter_menu_items(menu_items)]
+        items_description = [
+            f'{idx + 1}. {item["full_description"]}\nslug: {item["full_slug"]}'
+            for idx, item in enumerate(self._filter_menu_items(menu_items))
+        ]
 
         menu = "Menu Items:\n" + "\n\n---\n\n".join(items_description) + "\n\n-----\n\n"
         previous_orders = "Previous Orders:\n" + "\n\n---\n\n".join(previous_orders) + "\n\n-----\n\n"
@@ -33,7 +36,7 @@ class Consultant:
             ai_response = json.loads(self.ai.chat(primer, query))
             venue_slug = ai_response["slug"].split("/")[0]
             if not self.wolt.check_venue(venue_slug):
-                raise ImaginedVenue("The venue is likely imagined")
+                raise ImaginedVenue(f"The venue is likely imagined: `{venue_slug}`")
             return ai_response
         except (json.decoder.JSONDecodeError, ImaginedVenue) as e:
             attempt += 1
