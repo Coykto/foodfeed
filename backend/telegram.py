@@ -1,8 +1,15 @@
-def bot_setup(
-    telegram_api_token: str,
-    telegram_secret_header: str,
-    api_gateway_url: str
-):
+import boto3
+
+
+
+
+def bot_setup(telegram_api_token, telegram_secret_header):
+    client = boto3.client('cloudformation')
+    response = client.describe_stacks(StackName="Backend")
+    outputs = response['Stacks'][0]['Outputs']
+    api_gateway_url = next((item for item in outputs if item["OutputKey"] == "ApiEndpoint"), None)['OutputValue']
+
+
     api_url = f"{api_gateway_url}/api"
     print("Setting up telegram webhook")
     print(f"API token: {telegram_api_token}")

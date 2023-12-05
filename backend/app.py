@@ -35,6 +35,5 @@ backend_stack = PythonStack(
 bot_setup(
     telegram_api_token=backend_stack.telegram_token,
     telegram_secret_header=backend_stack.telegram_secret_header,
-    api_gateway_url=backend_stack.api_gateway_url
 )
 app.synth()
