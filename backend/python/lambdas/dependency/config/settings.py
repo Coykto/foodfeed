@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     VENUE_CATEGORIES_URI: Optional[str] = None
     VENUE_MENU_URI: Optional[str] = None
     VENUE_DETAILS_URI: Optional[str] = None
+    LATITUDE: Optional[float] = None
+    LONGITUDE: Optional[float] = None
     # misc
     REGION: str = "eu-west-1"
 
