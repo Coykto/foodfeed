@@ -22,7 +22,7 @@ def lambda_handler(event, context):
     consultation = consultant.consult(search_result, query, user_settings)
 
     item_url = f"https://wolt.com/en/geo/tbilisi/venue/{consultation['slug']}"
-    reason = clean_string(consultation["reason"])
+    reason = consultation["reason"]
     desc, _ = Search.detect_and_translate(clean_string(consultation["desc"]))
 
     if len(user_settings["previous_orders"]) >= user_settings["previous_orders_max_length"]:

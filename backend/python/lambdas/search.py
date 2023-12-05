@@ -42,7 +42,7 @@ def lambda_handler(event, context):
     )
 
     return {
-        "search_result":search_result,
+        "search_result": search_result,
         "user_settings": user_settings,
         "query": query
     }
