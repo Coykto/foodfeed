@@ -1,8 +1,8 @@
 import json
 from typing import List, Dict
 from .config.consultants_settings import consultants
-from wolt_client import Wolt
-from ai_client import AI
+from .wolt_client import Wolt
+from .ai_client import AI
 
 
 class ImaginedVenue(Exception):
