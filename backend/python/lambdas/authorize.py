@@ -9,4 +9,5 @@ logger.setLevel(logging.INFO)
 def lambda_handler(event, context):
     token = event.get("authorizationToken")
     if not token or token != settings.TELEGRAM_REQUEST_HEADER:
+        logger.info(f"Authorization failed: token {event} !- {settings.TELEGRAM_REQUEST_HEADER}")
         raise Exception("Unauthorized")
