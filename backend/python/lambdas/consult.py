@@ -10,6 +10,9 @@ logger.setLevel(logging.INFO)
 
 
 def lambda_handler(event, context):
+    logger.info(f"Event: {event}")
+    logger.info(f"Context: {context}")
+
     search_result = event["search_result"]
     user_settings = event["user_settings"]
     query = event["query"]
