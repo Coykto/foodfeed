@@ -1,10 +1,12 @@
+import os
+
 import boto3
 
 
 
 
 def bot_setup(telegram_api_token, telegram_secret_header):
-    client = boto3.client('cloudformation')
+    client = boto3.client('cloudformation', region_name=os.getenv('CDK_DEFAULT_REGION'))
     response = client.describe_stacks(StackName="Backend")
     outputs = response['Stacks'][0]['Outputs']
     api_gateway_url = next((item for item in outputs if item["OutputKey"] == "ApiEndpoint"), None)['OutputValue']
