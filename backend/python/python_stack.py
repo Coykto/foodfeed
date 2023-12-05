@@ -292,9 +292,9 @@ class PythonStack(Stack):
             self, "SendResult",
             lambda_function=send_search_result,
         )
-        search_machine = sfn.StateMachine(
+        sfn.StateMachine(
             self, "SearchMachine",
-            state_machine_type=sfn.StateMachineType.EXPRESS,
+            state_machine_type=sfn.StateMachineType.STANDARD,
             definition_body=sfn.DefinitionBody.from_chainable(
                 search_task
                 .next(consult_task)
@@ -333,7 +333,6 @@ class PythonStack(Stack):
         api = apiGateway.root.add_resource('api')
         api.add_method(
             'POST',
-            apigateway.StepFunctionsIntegration.start_execution(search_machine),
             authorizer=authorize
         )
         self.api_gateway_url = apiGateway.url

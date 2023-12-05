@@ -1,6 +1,9 @@
 import json
 import logging
 
+import boto3
+from aws_cdk import aws_stepfunctions as sfn
+
 from dependency.config.settings import settings
 
 logger = logging.getLogger()
@@ -11,6 +14,13 @@ def lambda_handler(event, context):
     if not token or token != settings.TELEGRAM_REQUEST_HEADER:
         logger.info(f"Authorization failed: token {event} !- {settings.TELEGRAM_REQUEST_HEADER}")
         raise Exception("Unauthorized")
+
+    sfn_client = boto3.client('stepfunctions')
+    sfn_client.start_execution(
+        stateMachineArn=sfn.StateMachine.from_state_machine_name("SearchMachine").state_machine_arn,
+        input=json.dumps(event)
+    )
+
     return {
         "principalId": "user",
         "policyDocument": {
