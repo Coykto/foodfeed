@@ -189,6 +189,9 @@ class PythonStack(Stack):
                 path.join(os.getcwd(), 'python/lambdas'),
                 exclude=["**", "!send_search_result.py"]
             ),
+            environment={
+                "TELEGRAM_TOKEN": self.telegram_token,
+            },
             handler='send_search_result.lambda_handler',
             timeout=Duration.seconds(300),
             tracing=lambda_.Tracing.ACTIVE,

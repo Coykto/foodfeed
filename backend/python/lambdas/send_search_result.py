@@ -13,7 +13,7 @@ def lambda_handler(event, context):
     reason = event["reason"]
     user_id = event["user_id"]
 
-    telegram_api_url = settings.TELEGRAM_API_URL.format(settings.TELEGRAM_TOKEN)
+    telegram_api_url = settings.TELEGRAM_API_URL.format(key=settings.TELEGRAM_TOKEN)
     logger.info(f"TELEGRAM_API_URL: {telegram_api_url}")
 
     res = requests.post(
