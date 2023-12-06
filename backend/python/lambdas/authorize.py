@@ -1,7 +1,4 @@
-import json
 import logging
-
-import boto3
 
 from dependency.config.settings import settings
 
@@ -13,12 +10,6 @@ def lambda_handler(event, context):
     if not token or token != settings.TELEGRAM_REQUEST_HEADER:
         logger.info(f"Authorization failed: token {event} !- {settings.TELEGRAM_REQUEST_HEADER}")
         raise Exception("Unauthorized")
-
-    sfn_client = boto3.client('stepfunctions')
-    sfn_client.start_execution(
-        stateMachineArn=settings.SEARCH_MACHINE_ARN,
-        input=json.dumps(event)
-    )
 
     return {
         "principalId": "user",

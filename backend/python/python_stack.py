@@ -142,6 +142,18 @@ class PythonStack(Stack):
         search_domain.grant_read_write(embedd_and_upload)
         processed_venues_bucket.grant_read(embedd_and_upload)
 
+        start_search = lambda_.Function(
+            self, 'startSearch',
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.AssetCode.from_asset(
+                path.join(os.getcwd(), 'python/lambdas'),
+                exclude=["**", "!start_search.py"]
+            ),
+            handler='start_search.lambda_handler',
+            tracing=lambda_.Tracing.ACTIVE,
+            layers=[dependency_layer]
+        )
+
         search = lambda_.Function(
             self, 'search',
             runtime=lambda_.Runtime.PYTHON_3_9,
@@ -199,6 +211,20 @@ class PythonStack(Stack):
             layers=[dependency_layer]
         )
 
+        auth = lambda_.Function(
+            self, 'Authorize',
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.AssetCode.from_asset(
+                path.join(os.getcwd(), 'python/lambdas'),
+                exclude=["**", "!authorize.py"]
+            ),
+            environment={
+                "TELEGRAM_REQUEST_HEADER": self.telegram_secret_header,
+            },
+            handler='authorize.lambda_handler',
+            timeout=Duration.seconds(30),
+            layers=[dependency_layer]
+        )
 
 
         # ========================
@@ -281,38 +307,18 @@ class PythonStack(Stack):
         )
         search_machine = sfn.StateMachine(
             self, "SearchMachine",
-            state_machine_type=sfn.StateMachineType.STANDARD,
             definition_body=sfn.DefinitionBody.from_chainable(
                 search_task
                 .next(consult_task)
                 .next(send_result_task)
-            ),
-            logs=sfn.LogOptions(
-                destination=logs.LogGroup(self, "SearchMachineLogGroup"),
-                include_execution_data=True,
-                level=sfn.LogLevel.ALL
             )
         )
+        search_machine.grant_start_execution(start_search)
+        start_search.add_environment("SEARCH_MACHINE_ARN", search_machine.state_machine_arn)
 
         # ========================
         # API Definition:
         # ========================
-        auth = lambda_.Function(
-            self, 'Authorize',
-            runtime=lambda_.Runtime.PYTHON_3_9,
-            code=lambda_.AssetCode.from_asset(
-                path.join(os.getcwd(), 'python/lambdas'),
-                exclude=["**", "!authorize.py"]
-            ),
-            environment={
-                "TELEGRAM_REQUEST_HEADER": self.telegram_secret_header,
-                "SEARCH_MACHINE_ARN": search_machine.state_machine_arn,
-            },
-            handler='authorize.lambda_handler',
-            timeout=Duration.seconds(30),
-            layers=[dependency_layer]
-        )
-        search_machine.grant_start_execution(auth)
 
         authorize = apigateway.TokenAuthorizer(
             self, 'Authorizer',
@@ -337,6 +343,7 @@ class PythonStack(Stack):
         api = apiGateway.root.add_resource('api')
         api.add_method(
             'POST',
+            apigateway.LambdaIntegration(start_search),
             authorizer=authorize
         )
         self.api_gateway_url = apiGateway.url
