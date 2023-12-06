@@ -15,7 +15,7 @@ def lambda_handler(event, context):
     sfn_client = boto3.client("stepfunctions")
     sfn_client.start_execution(
         stateMachineArn=settings.SEARCH_MACHINE_ARN,
-        input=json.dumps(json.loads(event["Payload"]["body"])["message"])
+        input=json.dumps(json.loads(event["body"])["message"])
     )
 
     return {"statusCode": 200}
