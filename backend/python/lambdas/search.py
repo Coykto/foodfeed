@@ -10,8 +10,8 @@ logger.setLevel(logging.INFO)
 def lambda_handler(event, context):
     logger.info(f"Event: {event}")
     logger.info(f"Context: {context}")
-    user_id = event["body"]["message"]["from"]["id"]
-    query = event["body"]["message"]["text"]
+    user_id = event["message"]["from"]["id"]
+    query = event["message"]["text"]
 
     country = "geo"
     city = "tbilisi"
