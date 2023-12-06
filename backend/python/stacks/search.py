@@ -41,7 +41,7 @@ class SearchStack(Stack):
 
         user_settings_bucket = s3.Bucket(self, 'userSettings')
 
-        start_search = lambda_.Function(
+        self.start_search = lambda_.Function(
             self, 'startSearch',
             runtime=lambda_.Runtime.PYTHON_3_9,
             code=lambda_.AssetCode.from_asset(
@@ -135,5 +135,5 @@ class SearchStack(Stack):
                 .next(send_result_task)
             )
         )
-        self.search_machine.grant_start_execution(start_search)
-        start_search.add_environment("SEARCH_MACHINE_ARN", self.search_machine.state_machine_arn)
+        self.search_machine.grant_start_execution(self.start_search)
+        self.start_search.add_environment("SEARCH_MACHINE_ARN", self.search_machine.state_machine_arn)

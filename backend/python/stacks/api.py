@@ -18,7 +18,13 @@ ApiGatewayStageStackOutput = 'ApiStage'
 
 class ApiStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, dependency_layer: PythonLayerVersion, **kwargs) -> None:
+    def __init__(
+        self,
+        scope: Construct,
+        construct_id: str, dependency_layer: PythonLayerVersion,
+        start_search_lambda: lambda_.Function,
+        **kwargs
+    ) -> None:
         super().__init__(scope, construct_id, **kwargs)
         self.telegram_secret_header = str(uuid4())
 
@@ -57,7 +63,7 @@ class ApiStack(Stack):
         api = apiGateway.root.add_resource('api')
         api.add_method(
             'POST',
-            apigateway.LambdaIntegration(lambda_.Function.from_function_name("startSearch")),
+            apigateway.LambdaIntegration(start_search_lambda),
             authorizer=authorize
         )
         self.api_gateway_url = apiGateway.url
