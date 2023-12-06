@@ -75,7 +75,6 @@ def setup_telegram(
     )
     search_machine.grant_start_execution(receive_update)
 
-
     send_message = lambda_.Function(
         stack, 'sendMessage',
         runtime=lambda_.Runtime.PYTHON_3_9,
