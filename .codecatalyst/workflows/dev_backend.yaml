@@ -1,5 +1,4 @@
 Name: dev_backend
-RunMode: SUPERSEDED
 SchemaVersion: "1.0"
 Triggers:
   - Type: PUSH
