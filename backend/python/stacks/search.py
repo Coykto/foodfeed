@@ -1,28 +1,29 @@
-import json
 from os import path
 import os
-from aws_cdk import (
-    Stack,
-)
-from constructs import Construct
 import aws_cdk.aws_lambda as lambda_
-import aws_cdk.aws_opensearchservice as opensearch
 import aws_cdk.aws_stepfunctions as sfn
 import aws_cdk.aws_stepfunctions_tasks as tasks
-from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion
-from aws_cdk import Duration
+from aws_cdk import Duration, Stack
 import aws_cdk.aws_s3 as s3
+from aws_cdk.aws_opensearchservice import Domain
+from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion
 
 ApiGatewayEndpointStackOutput = 'ApiEndpoint'
 ApiGatewayDomainStackOutput = 'ApiDomain'
 ApiGatewayStageStackOutput = 'ApiStage'
 
 
-def setup_search(scope, dependency_layer, search_domain, openai_api_key, telegram_token) -> lambda_.Function:
-    user_settings_bucket = s3.Bucket(scope, 'userSettings')
+def setup_search(
+    stack: Stack,
+    dependency_layer: PythonLayerVersion,
+    search_domain: Domain,
+    openai_api_key: str,
+    telegram_token: str,
+) -> sfn.StateMachine:
+    user_settings_bucket = s3.Bucket(stack, 'userSettings')
 
     search = lambda_.Function(
-        scope, 'search',
+        stack, 'search',
         runtime=lambda_.Runtime.PYTHON_3_9,
         code=lambda_.AssetCode.from_asset(
             path.join(os.getcwd(), 'python/lambdas/search'),
@@ -42,7 +43,7 @@ def setup_search(scope, dependency_layer, search_domain, openai_api_key, telegra
     user_settings_bucket.grant_read_write(search)
 
     consult = lambda_.Function(
-        scope, 'consult',
+        stack, 'consult',
         runtime=lambda_.Runtime.PYTHON_3_9,
         code=lambda_.AssetCode.from_asset(
             path.join(os.getcwd(), 'python/lambdas/search'),
@@ -63,7 +64,7 @@ def setup_search(scope, dependency_layer, search_domain, openai_api_key, telegra
     user_settings_bucket.grant_read_write(consult)
 
     send_search_result = lambda_.Function(
-        scope, 'sendSearchResult',
+        stack, 'sendSearchResult',
         runtime=lambda_.Runtime.PYTHON_3_9,
         code=lambda_.AssetCode.from_asset(
             path.join(os.getcwd(), 'python/lambdas/search'),
@@ -81,30 +82,25 @@ def setup_search(scope, dependency_layer, search_domain, openai_api_key, telegra
     # Search Machine:
     # ========================
     search_task = tasks.LambdaInvoke(
-        scope, "Search",
+        stack, "Search",
         lambda_function=search,
         output_path="$.Payload",
     )
     consult_task = tasks.LambdaInvoke(
-        scope, "Consult",
+        stack, "Consult",
         lambda_function=consult,
         output_path="$.Payload"
     )
     send_result_task = tasks.LambdaInvoke(
-        scope, "SendResult",
+        stack, "SendResult",
         lambda_function=send_search_result,
     )
     search_machine = sfn.StateMachine(
-        scope, "SearchMachine",
+        stack, "SearchMachine",
         definition_body=sfn.DefinitionBody.from_chainable(
             search_task
             .next(consult_task)
             .next(send_result_task)
         )
     )
-    search_machine.grant_start_execution(start_search)
-    start_search.add_environment("SEARCH_MACHINE_ARN", search_machine.state_machine_arn)
-
-    return start_search
-
-        
+    return search_machine

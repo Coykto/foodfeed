@@ -1,21 +1,21 @@
 import logging
 
-from dependency.config.settings import settings
+import requests
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def lambda_handler(event, context):
-    # setWebhook
-    api_gateway_url = next((item for item in outputs if item["OutputKey"] == "Ap?iEndpoint"), None)['OutputValue']
+    logger.info(f"Event: {event}")
 
-    api_url = f"{api_gateway_url}/api"
-    import requests
-    url = f"https://api.telegram.org/bot{telegram_api_token}/"
+    tg_api_url = f"https://api.telegram.org/bot{event['token']}"
+    gateway_url = f"{event['webhook_url']}/api"
+    telegram_secret_header = event["secret_header"]
+
     resp = requests.post(
-        url + "setWebhook",
+        tg_api_url + "setWebhook",
         data={
-            "url": api_url,
+            "url": gateway_url,
             "drop_pending_updates": True,
             "secret_token": telegram_secret_header
         }
