@@ -48,7 +48,7 @@ def setup_telegram(
         "physical_resource_id": PhysicalResourceId.of("TelegramWebhookSetup")
     }
 
-    AwsCustomResource(
+    custom_resource = AwsCustomResource(
         stack, "TelegramWebhookSetup",
         log_retention=logs.RetentionDays.ONE_DAY,
         on_create=lambda_params,
@@ -57,6 +57,7 @@ def setup_telegram(
             resources=AwsCustomResourcePolicy.ANY_RESOURCE
         )
     )
+    setup_webhook.grant_invoke(custom_resource)
 
     receive_update = lambda_.Function(
         stack, 'receiveUpdate',
