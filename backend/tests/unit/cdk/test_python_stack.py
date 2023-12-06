@@ -4,7 +4,7 @@ import aws_cdk.assertions as assertions
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../../../python"))
-from python.python_stack import PythonStack
+from python.python_stack import BackendStack
 
 
 def test_resources_created():
@@ -14,10 +14,10 @@ def test_resources_created():
             'TELEGRAM_TOKEN': "telegram_token",
         }
     )
-    stack = PythonStack(app, "python")
+    stack = BackendStack(app, "python")
     template = assertions.Template.from_stack(stack)
 
     template.resource_count_is("AWS::S3::Bucket", 3)
-    template.resource_count_is("AWS::Lambda::Function", 12)
+    template.resource_count_is("AWS::Lambda::Function", 11)
     template.resource_count_is("AWS::OpenSearchService::Domain", 1)
     template.resource_count_is("AWS::ApiGateway::RestApi", 1)

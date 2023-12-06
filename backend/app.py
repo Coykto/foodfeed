@@ -3,10 +3,10 @@ import os
 
 import aws_cdk as cdk
 
-from python.python_stack import PythonStack
+from python.python_stack import BackendStack
 
 app = cdk.App()
-PythonStack(
+BackendStack(
     app, 'Backend',
     env=cdk.Environment(
         account=os.getenv('CDK_DEFAULT_ACCOUNT'),

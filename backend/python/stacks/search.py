@@ -18,7 +18,6 @@ def setup_search(
     dependency_layer: PythonLayerVersion,
     search_domain: Domain,
     openai_api_key: str,
-    telegram_token: str,
 ) -> sfn.StateMachine:
     user_settings_bucket = s3.Bucket(stack, 'userSettings')
 
@@ -63,20 +62,18 @@ def setup_search(
     )
     user_settings_bucket.grant_read_write(consult)
 
-    send_search_result = lambda_.Function(
-        stack, 'sendSearchResult',
-        runtime=lambda_.Runtime.PYTHON_3_9,
-        code=lambda_.AssetCode.from_asset(
-            path.join(os.getcwd(), 'python/lambdas/search'),
-            exclude=["**", "!send_search_result.py"]
-        ),
-        environment={
-            "TELEGRAM_TOKEN": telegram_token,
-        },
-        handler='send_search_result.lambda_handler',
-        tracing=lambda_.Tracing.ACTIVE,
-        layers=[dependency_layer]
-    )
+    # send_search_result = lambda_.Function(
+    #     stack, 'sendSearchResult',
+    #     runtime=lambda_.Runtime.PYTHON_3_9,
+    #     code=lambda_.AssetCode.from_asset(
+    #         path.join(os.getcwd(), 'python/lambdas/search'),
+    #         exclude=["**", "!send_search_result.py"]
+    #     ),
+    #     environment={},
+    #     handler='send_search_result.lambda_handler',
+    #     tracing=lambda_.Tracing.ACTIVE,
+    #     layers=[dependency_layer]
+    # )
 
     # ========================
     # Search Machine:
@@ -91,16 +88,16 @@ def setup_search(
         lambda_function=consult,
         output_path="$.Payload"
     )
-    send_result_task = tasks.LambdaInvoke(
-        stack, "SendResult",
-        lambda_function=send_search_result,
-    )
+    # send_result_task = tasks.LambdaInvoke(
+    #     stack, "SendResult",
+    #     lambda_function=send_search_result,
+    # )
     search_machine = sfn.StateMachine(
         stack, "SearchMachine",
         definition_body=sfn.DefinitionBody.from_chainable(
             search_task
             .next(consult_task)
-            .next(send_result_task)
+            # .next(send_result_task)
         )
     )
     return search_machine
