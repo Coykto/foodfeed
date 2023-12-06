@@ -14,7 +14,7 @@ def setup_ingestion(scope, dependency_layer, search_domain, openai_api_key):
             scope, 'initializeOpensearch',
             runtime=lambda_.Runtime.PYTHON_3_9,
             code=lambda_.AssetCode.from_asset(
-                os.path.join(os.getcwd(), 'python/lambdas'),
+                os.path.join(os.getcwd(), 'python/lambdas/ingestion'),
                 exclude=["**", "!initialize_opensearch.py"]
             ),
             handler='initialize_opensearch.lambda_handler',
@@ -29,7 +29,7 @@ def setup_ingestion(scope, dependency_layer, search_domain, openai_api_key):
             scope,'getVenues',
             runtime=lambda_.Runtime.PYTHON_3_9,
             code=lambda_.AssetCode.from_asset(
-                os.path.join(os.getcwd(), 'python/lambdas'),
+                os.path.join(os.getcwd(), 'python/lambdas/ingestion'),
                 exclude=["**", "!get_venues.py"]
             ),
             handler='get_venues.lambda_handler',
@@ -51,7 +51,7 @@ def setup_ingestion(scope, dependency_layer, search_domain, openai_api_key):
             scope,'getVenueItems',
             runtime=lambda_.Runtime.PYTHON_3_9,
             code=lambda_.AssetCode.from_asset(
-                os.path.join(os.getcwd(), 'python/lambdas'),
+                os.path.join(os.getcwd(), 'python/lambdas/ingestion'),
                 exclude=["**", "!process_venue_items.py"]
             ),
             handler='process_venue_items.lambda_handler',
@@ -73,7 +73,7 @@ def setup_ingestion(scope, dependency_layer, search_domain, openai_api_key):
             scope,'embeddAndUpload',
             runtime=lambda_.Runtime.PYTHON_3_9,
             code=lambda_.AssetCode.from_asset(
-                os.path.join(os.getcwd(), 'python/lambdas'),
+                os.path.join(os.getcwd(), 'python/lambdas/ingestion'),
                 exclude=["**", "!embedd_and_upload.py"]
             ),
             handler='embedd_and_upload.lambda_handler',

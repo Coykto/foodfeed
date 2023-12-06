@@ -25,7 +25,7 @@ def setup_search(scope, dependency_layer, search_domain, openai_api_key, telegra
         scope, 'search',
         runtime=lambda_.Runtime.PYTHON_3_9,
         code=lambda_.AssetCode.from_asset(
-            path.join(os.getcwd(), 'python/lambdas'),
+            path.join(os.getcwd(), 'python/lambdas/search'),
             exclude=["**", "!search.py"]
         ),
         handler='search.lambda_handler',
@@ -45,7 +45,7 @@ def setup_search(scope, dependency_layer, search_domain, openai_api_key, telegra
         scope, 'consult',
         runtime=lambda_.Runtime.PYTHON_3_9,
         code=lambda_.AssetCode.from_asset(
-            path.join(os.getcwd(), 'python/lambdas'),
+            path.join(os.getcwd(), 'python/lambdas/search'),
             exclude=["**", "!consult.py"]
         ),
         handler='consult.lambda_handler',
@@ -66,7 +66,7 @@ def setup_search(scope, dependency_layer, search_domain, openai_api_key, telegra
         scope, 'sendSearchResult',
         runtime=lambda_.Runtime.PYTHON_3_9,
         code=lambda_.AssetCode.from_asset(
-            path.join(os.getcwd(), 'python/lambdas'),
+            path.join(os.getcwd(), 'python/lambdas/search'),
             exclude=["**", "!send_search_result.py"]
         ),
         environment={
