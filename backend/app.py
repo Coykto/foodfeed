@@ -2,38 +2,56 @@
 import os
 
 import aws_cdk as cdk
-from telegram import bot_setup
 
-from python.python_stack import PythonStack
-
-stack_name = 'Backend' if 'LOCAL_TESTING' not in os.environ else 'PythonStack'
+from python.stacks.common import CommonStack
+from python.stacks.api import ApiStack
+from python.stacks.search import SearchStack
+from python.stacks.telegram import TelegramStack
+from python.stacks.ingestion import IngestionStack
 
 app = cdk.App()
-backend_stack = PythonStack(
-    app,
-    stack_name,
-    # If you don't specify 'env', this stack will be environment-agnostic.
-    # Account/Region-dependent features and context lookups will not work,
-    # but a single synthesized template can be deployed anywhere.
-
-    # Uncomment the next line to specialize this stack for the AWS Account
-    # and Region that are implied by the current CLI configuration.
-
+common_stack = CommonStack(
+    app, 'CommonBackend',
+    env=cdk.Environment(
+        account=os.getenv('CDK_DEFAULT_ACCOUNT'),
+        region=os.getenv('CDK_DEFAULT_REGION')
+    )
+)
+api_stack = ApiStack(
+    app, 'ApiBackend',
     env=cdk.Environment(
         account=os.getenv('CDK_DEFAULT_ACCOUNT'),
         region=os.getenv('CDK_DEFAULT_REGION')
     ),
-
-    # Uncomment the next line if you know exactly what Account and Region you
-    # want to deploy the stack to. */
-
-    # env=cdk.Environment(account='123456789012', region='us-east-1'),
-
-    # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-    )
-
-bot_setup(
-    telegram_api_token=backend_stack.telegram_token,
-    telegram_secret_header=backend_stack.telegram_secret_header,
+    dependency_layer=common_stack.dependency_layer,
 )
+ingestion_stack = IngestionStack(
+    app, 'IngestionBackend',
+    env=cdk.Environment(
+        account=os.getenv('CDK_DEFAULT_ACCOUNT'),
+        region=os.getenv('CDK_DEFAULT_REGION')
+    ),
+    dependency_layer=common_stack.dependency_layer,
+    search_domain=common_stack.search_domain,
+)
+search_stack = SearchStack(
+    app, 'SearchBackend',
+    env=cdk.Environment(
+        account=os.getenv('CDK_DEFAULT_ACCOUNT'),
+        region=os.getenv('CDK_DEFAULT_REGION')
+    ),
+    dependency_layer=common_stack.dependency_layer,
+    search_domain=common_stack.search_domain,
+)
+telegram_stack = TelegramStack(
+    app, 'TelegramBackend',
+    env=cdk.Environment(
+        account=os.getenv('CDK_DEFAULT_ACCOUNT'),
+        region=os.getenv('CDK_DEFAULT_REGION')
+    ),
+    telegram_api_token=search_stack.telegram_token,
+    telegram_secret_header=api_stack.telegram_secret_header,
+    dependency_layer=common_stack.dependency_layer,
+)
+
 app.synth()
