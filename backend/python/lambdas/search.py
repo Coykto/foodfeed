@@ -8,12 +8,10 @@ logger.setLevel(logging.INFO)
 
 
 def lambda_handler(event, context):
-    query = event.get("query", event["q"])
-    if query is None:
-        return {
-            'statusCode': 400,
-            'body': {'message': 'query is required'}
-        }
+    logger.info(f"Event: {event}")
+    logger.info(f"Context: {context}")
+    user_id = event["message"]["from"]["id"]
+    query = event["message"]["text"]
 
     country = "geo"
     city = "tbilisi"
@@ -29,7 +27,7 @@ def lambda_handler(event, context):
         "original_query": query
     }
 
-    user_settings = storage.get_user_settings(user_id=event["user_id"])
+    user_settings = storage.get_user_settings(user_id=user_id)
     query_vector = ai.embedd_query(query["query"])
     search_result = search.search_menu(
         index_name=f"{country}.{city}.food",
@@ -44,7 +42,7 @@ def lambda_handler(event, context):
     )
 
     return {
-        "search_result":search_result,
+        "search_result": search_result,
         "user_settings": user_settings,
         "query": query
     }

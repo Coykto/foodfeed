@@ -61,6 +61,7 @@ class Storage:
         except ClientError as e:
             if e.response['Error']['Code'] == 'NoSuchKey':
                 default_settings = user_settings
+                default_settings["user_id"] = user_id
                 self.put_user_settings(user_id, default_settings)
                 return default_settings
             raise e

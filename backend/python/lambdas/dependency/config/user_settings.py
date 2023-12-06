@@ -1,6 +1,7 @@
 user_settings = {
     "consultant": "default",
     "language": "en",
+    "user_id": None,
     "user_name": None,
     "user_email": None,
     "max_price": 3000,
@@ -13,5 +14,5 @@ user_settings = {
     "previous_orders": [],
     "previous_queries": [],
     "min_rating": 9.0,
-    "past_orders_max_length": 10,
+    "previous_orders_max_length": 10,
 }

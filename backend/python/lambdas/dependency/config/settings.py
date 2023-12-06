@@ -1,5 +1,4 @@
 from typing import Optional
-
 from pydantic_settings import BaseSettings
 
 
@@ -19,7 +18,14 @@ class Settings(BaseSettings):
     VENUE_CATEGORIES_URI: Optional[str] = None
     VENUE_MENU_URI: Optional[str] = None
     VENUE_DETAILS_URI: Optional[str] = None
+    LATITUDE: Optional[float] = None
+    LONGITUDE: Optional[float] = None
+    # telegram
+    TELEGRAM_API_URL: str = "https://api.telegram.org/bot{key}"
+    TELEGRAM_TOKEN: Optional[str] = None
+    TELEGRAM_REQUEST_HEADER: Optional[str] = None
     # misc
+    SEARCH_MACHINE_ARN: Optional[str] = None
     REGION: str = "eu-west-1"
 
     def __getattr__(self, name):
