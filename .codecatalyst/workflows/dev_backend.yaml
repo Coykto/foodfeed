@@ -4,7 +4,7 @@ SchemaVersion: "1.0"
 Triggers:
   - Type: PUSH
     Branches:
-      - backend/*
+      - backend\/.*
 Actions:
   BackendBuildAndPackage:
     Identifier: aws/build@v1
