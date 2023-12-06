@@ -1,32 +1,20 @@
 from os import path
 import os
-from aws_cdk import (
-    Stack,
-    CfnOutput
-)
+from typing import Tuple
+
+from aws_cdk import CfnOutput
 from uuid import uuid4
 
-from constructs import Construct
 import aws_cdk.aws_lambda as lambda_
 import aws_cdk.aws_apigateway as apigateway
-from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion
 
 ApiGatewayEndpointStackOutput = 'ApiEndpoint'
 ApiGatewayDomainStackOutput = 'ApiDomain'
 ApiGatewayStageStackOutput = 'ApiStage'
 
 
-class ApiStack(Stack):
-
-    def __init__(
-        self,
-        scope: Construct,
-        construct_id: str, dependency_layer: PythonLayerVersion,
-        start_search_lambda: lambda_.Function,
-        **kwargs
-    ) -> None:
-        super().__init__(scope, construct_id, **kwargs)
-        self.telegram_secret_header = str(uuid4())
+def setup_api(self, dependency_layer) -> Tuple[apigateway.Resource, str]:
+        telegram_secret_header = str(uuid4())
 
         auth = lambda_.Function(
             self, 'Authorize',
@@ -35,7 +23,7 @@ class ApiStack(Stack):
                 path.join(os.getcwd(), 'python/lambdas'),
                 exclude=["**", "!authorize.py"]
             ),
-            environment={"TELEGRAM_REQUEST_HEADER": self.telegram_secret_header},
+            environment={"TELEGRAM_REQUEST_HEADER": telegram_secret_header},
             handler='authorize.lambda_handler',
             layers=[dependency_layer]
         )
@@ -61,12 +49,7 @@ class ApiStack(Stack):
         )
 
         api = apiGateway.root.add_resource('api')
-        api.add_method(
-            'POST',
-            apigateway.LambdaIntegration(start_search_lambda),
-            authorizer=authorize
-        )
-        self.api_gateway_url = apiGateway.url
+        api.add_method('ANY', authorizer=authorize)
 
         CfnOutput(self, ApiGatewayEndpointStackOutput,
             value=apiGateway.url
@@ -80,3 +63,4 @@ class ApiStack(Stack):
             value=apiGateway.deployment_stage.stage_name
         )
 
+        return api, telegram_secret_header

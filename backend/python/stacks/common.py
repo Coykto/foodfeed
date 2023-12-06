@@ -1,5 +1,6 @@
 from os import path
 import os
+from typing import Tuple
 
 from aws_cdk import aws_iam as iam
 import aws_cdk.aws_lambda as lambda_
@@ -7,11 +8,8 @@ import aws_cdk.aws_opensearchservice as opensearch
 from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion, BundlingOptions
 from aws_cdk import DockerImage
 
-from collections import namedtuple
-CommonStack = namedtuple('CommonStack', ['dependency_layer', 'search_domain'])
 
-
-def setup_common(scope):
+def setup_common(scope) -> Tuple[PythonLayerVersion, opensearch.Domain]:
     search_domain = opensearch.Domain(
         scope, 'food',
         version=opensearch.EngineVersion.OPENSEARCH_2_9,
@@ -36,5 +34,5 @@ def setup_common(scope):
             file='Dockerfile'
         ))
     )
-    return CommonStack(dependency_layer, search_domain)
+    return dependency_layer, search_domain
 

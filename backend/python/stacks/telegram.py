@@ -1,63 +1,78 @@
 import json
-from os import path
 import os
 
-import boto3
-from aws_cdk import (
-    StackProps,
-    Stack,
-    CfnOutput
-)
-from uuid import uuid4
-
-from aws_cdk import aws_iam as iam
-from constructs import Construct
+from aws_cdk.custom_resources import AwsCustomResource
 import aws_cdk.aws_lambda as lambda_
 from aws_cdk import aws_logs as logs
 import aws_cdk.aws_apigateway as apigateway
-import aws_cdk.aws_opensearchservice as opensearch
-import aws_cdk.aws_stepfunctions as sfn
-import aws_cdk.aws_stepfunctions_tasks as tasks
-from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion, BundlingOptions
-from aws_cdk import DockerImage, Duration
-import aws_cdk.aws_s3 as s3
 
-ApiGatewayEndpointStackOutput = 'ApiEndpoint'
-ApiGatewayDomainStackOutput = 'ApiDomain'
-ApiGatewayStageStackOutput = 'ApiStage'
+ApiGatewayEndpointStackOutput = "ApiEndpoint"
+ApiGatewayDomainStackOutput = "ApiDomain"
+ApiGatewayStageStackOutput = "ApiStage"
 
 
-class TelegramStack(Stack):
+def setup_telegram(scope, api, telegram_api_token, telegram_secret_header, dependency_layer):
 
-    def __init__(
-        self,
-        scope: Construct,
-        construct_id: str,
-        telegram_api_token: str,
-        telegram_secret_header: str,
-        dependency_layer: PythonLayerVersion,
-        **kwargs
-    ) -> None:
-        super().__init__(scope, construct_id, **kwargs)
-
-        # setWebhook
-        client = boto3.client('cloudformation', region_name=os.getenv('CDK_DEFAULT_REGION'))
-        response = client.describe_stacks(StackName="Backend")
-        outputs = response['Stacks'][0]['Outputs']
-        api_gateway_url = next((item for item in outputs if item["OutputKey"] == "ApiEndpoint"), None)['OutputValue']
-
-        api_url = f"{api_gateway_url}/api"
-        import requests
-        url = f"https://api.telegram.org/bot{telegram_api_token}/"
-        resp = requests.post(
-            url + "setWebhook",
-            data={
-                "url": api_url,
-                "drop_pending_updates": True,
-                "secret_token": telegram_secret_header
-            }
+        setup_webhook = lambda_.Function(
+            scope, "setupTelegramWebhook",
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.AssetCode.from_asset(
+                os.path.join(os.getcwd(), "python/lambdas/telegram"),
+                exclude=["**", "!setup_webhook.py"]
+            ),
+            handler="setup_webhook.lambda_handler",
+            tracing=lambda_.Tracing.ACTIVE,
+            layers=[dependency_layer]
         )
-        if resp.status_code != 200:
-            raise Exception(f"Failed to setup webhook: {resp}")
 
+        lambda_params = {
+            "service": "Lambda",
+            "action": "invoke",
+            "parameters": {
+                "FunctionName": setup_webhook.function_arn,
+                "Payload": json.dumps({
+                    "token": telegram_api_token,
+                    "webhook_url": api.url,
+                    "secret_header": telegram_secret_header
+                })
+            },
+            "physicalResourceId": "TelegramWebhookSetup"
+        }
 
+        AwsCustomResource(
+            scope, "TelegramWebhookSetup",
+            log_retention=logs.RetentionDays.ONE_DAY,
+            on_create=lambda_params,
+            on_update=lambda_params
+        )
+
+        receive_update = lambda_.Function(
+            scope, 'startSearch',
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.AssetCode.from_asset(
+                os.path.join(os.getcwd(), 'python/lambdas/telegram'),
+                exclude=["**", "!receive_update.py"]
+            ),
+            handler='receive_update.lambda_handler',
+            tracing=lambda_.Tracing.ACTIVE,
+            layers=[dependency_layer]
+        )
+
+        send_message = lambda_.Function(
+            scope, 'startSearch',
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.AssetCode.from_asset(
+                os.path.join(os.getcwd(), 'python/lambdas/telegram'),
+                exclude=["**", "!send_message.py"]
+            ),
+            handler='send_message.lambda_handler',
+            tracing=lambda_.Tracing.ACTIVE,
+            layers=[dependency_layer]
+        )
+
+        send_message.grant_invoke(receive_update)
+
+        api.add_method(
+            'POST',
+            apigateway.LambdaIntegration(receive_update),
+        )

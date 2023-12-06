@@ -18,20 +18,8 @@ ApiGatewayDomainStackOutput = 'ApiDomain'
 ApiGatewayStageStackOutput = 'ApiStage'
 
 
-def setup_search(scope, dependency_layer, search_domain, openai_api_key, telegram_token):
+def setup_search(scope, dependency_layer, search_domain, openai_api_key, telegram_token) -> lambda_.Function:
     user_settings_bucket = s3.Bucket(scope, 'userSettings')
-
-    start_search = lambda_.Function(
-        scope, 'startSearch',
-        runtime=lambda_.Runtime.PYTHON_3_9,
-        code=lambda_.AssetCode.from_asset(
-            path.join(os.getcwd(), 'python/lambdas'),
-            exclude=["**", "!start_search.py"]
-        ),
-        handler='start_search.lambda_handler',
-        tracing=lambda_.Tracing.ACTIVE,
-        layers=[dependency_layer]
-    )
 
     search = lambda_.Function(
         scope, 'search',
@@ -116,5 +104,7 @@ def setup_search(scope, dependency_layer, search_domain, openai_api_key, telegra
     )
     search_machine.grant_start_execution(start_search)
     start_search.add_environment("SEARCH_MACHINE_ARN", search_machine.state_machine_arn)
+
+    return start_search
 
         

@@ -8,6 +8,7 @@ from dependency.config.settings import settings
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+
 def lambda_handler(event, context):
     logger.info(f"Event: {event}")
     logger.info(f"Context: {context}")
