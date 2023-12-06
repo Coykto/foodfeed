@@ -23,7 +23,7 @@ class BackendStack(Stack):
         telegram_token = self.node.try_get_context("TELEGRAM_TOKEN")
 
         dependency_layer, search_domain = setup_common(self)
-        search_machine = setup_search(self, dependency_layer, search_domain, openai_api_key, telegram_token)
+        search_machine = setup_search(self, dependency_layer, search_domain, openai_api_key)
         api = setup_api(self, dependency_layer, telegram_secret_header)
         setup_ingestion(self, dependency_layer, search_domain, openai_api_key)
         setup_telegram(self, dependency_layer, api, telegram_token, telegram_secret_header, search_machine)
