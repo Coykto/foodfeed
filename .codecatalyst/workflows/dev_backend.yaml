@@ -58,7 +58,7 @@ Actions:
       Connections:
         - Name: "347110856025"
           Role: CodeCatalystWorkflowDevelopmentRole-cosmos
-  BackendCDKDeploy:
+  CommonBackendCDKDeploy:
     Identifier: aws/cdk-deploy@v1
     Inputs:
       Artifacts:
@@ -66,14 +66,88 @@ Actions:
     DependsOn:
       - BackendCDKBootstrapAction
     Configuration:
-      StackName: Backend
+      StackName: CommonBackend
+      CdkRootPath: backend/
+      CdkCliVersion: 2.110.0
+      Region: eu-west-1
+    Environment:
+      Name: dev_environment
+      Connections:
+        - Name: "347110856025"
+          Role: CodeCatalystWorkflowDevelopmentRole-cosmos
+  SearchBackendCDKDeploy:
+    Identifier: aws/cdk-deploy@v1
+    Inputs:
+      Artifacts:
+        - backend
+    DependsOn:
+      - BackendCDKBootstrapAction
+    Configuration:
+      StackName: SearchBackend
       CdkRootPath: backend/
       CdkCliVersion: 2.110.0
       Region: eu-west-1
       Context: >
         {
-          "stack_name": "Backend", 
-          "OPENAI_API_KEY": "${Secrets.OPENAI_API_KEY}",
+          "OPENAI_API_KEY": "${Secrets.OPENAI_API_KEY}"
+        }
+    Environment:
+      Name: dev_environment
+      Connections:
+        - Name: "347110856025"
+          Role: CodeCatalystWorkflowDevelopmentRole-cosmos
+  ApiBackendCDKDeploy:
+    Identifier: aws/cdk-deploy@v1
+    Inputs:
+      Artifacts:
+        - backend
+    DependsOn:
+      - BackendCDKBootstrapAction
+    Configuration:
+      StackName: SearchBackend
+      CdkRootPath: backend/
+      CdkCliVersion: 2.110.0
+      Region: eu-west-1
+    Environment:
+      Name: dev_environment
+      Connections:
+        - Name: "347110856025"
+          Role: CodeCatalystWorkflowDevelopmentRole-cosmos
+  IngestionBackendCDKDeploy:
+    Identifier: aws/cdk-deploy@v1
+    Inputs:
+      Artifacts:
+        - backend
+    DependsOn:
+      - BackendCDKBootstrapAction
+    Configuration:
+      StackName: IngestionBackend
+      CdkRootPath: backend/
+      CdkCliVersion: 2.110.0
+      Region: eu-west-1
+      Context: >
+        {
+          "OPENAI_API_KEY": "${Secrets.OPENAI_API_KEY}"
+        }
+    Environment:
+      Name: dev_environment
+      Connections:
+        - Name: "347110856025"
+          Role: CodeCatalystWorkflowDevelopmentRole-cosmos
+  TelegramBackendCDKDeploy:
+    Identifier: aws/cdk-deploy@v1
+    Inputs:
+      Artifacts:
+        - backend
+    DependsOn:
+      - BackendCDKBootstrapAction
+    Configuration:
+      StackName: TelegramBackend
+      CdkRootPath: backend/
+      CdkCliVersion: 2.110.0
+      Region: eu-west-1
+      Context: >
+        {
           "TELEGRAM_TOKEN": "${Secrets.TELEGRAM_TOKEN}"
         }
     Environment:
