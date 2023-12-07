@@ -4,9 +4,11 @@ import os
 from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion
 from aws_cdk.custom_resources import AwsCustomResource, PhysicalResourceId, AwsCustomResourcePolicy
 import aws_cdk.aws_lambda as lambda_
+from aws_cdk.aws_s3_notifications import LambdaDestination
 from aws_cdk import aws_logs as logs, Stack
 import aws_cdk.aws_apigateway as apigateway
 from aws_cdk.aws_stepfunctions import StateMachine
+import aws_cdk.aws_s3 as s3
 
 ApiGatewayEndpointStackOutput = "ApiEndpoint"
 ApiGatewayDomainStackOutput = "ApiDomain"
@@ -20,6 +22,7 @@ def setup_telegram(
     telegram_api_token: str,
     telegram_secret_header: str,
     search_machine: StateMachine,
+    search_results_bucket: s3.Bucket
 ):
 
     setup_webhook = lambda_.Function(
@@ -82,12 +85,20 @@ def setup_telegram(
             os.path.join(os.getcwd(), 'python/lambdas/telegram'),
             exclude=["**", "!send_message.py"]
         ),
+        environment={
+            "SEARCH_RESULTS_BUCKET": search_results_bucket.bucket_name,
+            "TELEGRAM_TOKEN": telegram_api_token,
+        },
         handler='send_message.lambda_handler',
         tracing=lambda_.Tracing.ACTIVE,
         layers=[dependency_layer]
     )
-
     send_message.grant_invoke(receive_update)
+    search_results_bucket.grant_read_write(send_message)
+    search_results_bucket.add_event_notification(
+        s3.EventType.OBJECT_CREATED,
+        LambdaDestination(send_message)
+    )
 
     api = apiGateway.root.add_resource('api')
     api.add_method(

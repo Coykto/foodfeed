@@ -32,7 +32,7 @@ def lambda_handler(event, context):
             venues = filter_out_indexed_venues(venues, index_name)
 
         for venue in venues:
-            storage.put_raw_venue(
+            storage.save_raw_venue(
                 country=country,
                 city=city,
                 venue_slug=venue.get('venue').get('slug'),

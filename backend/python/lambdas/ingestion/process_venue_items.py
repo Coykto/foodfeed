@@ -71,6 +71,6 @@ def lambda_handler(event, context):
                 )
             })
 
-    storage.put_processed_venue(country, city, venue_slug, menu_items)
+    storage.save_processed_venue(country, city, venue_slug, menu_items)
 
     return {"s": venue_slug}

@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     RAW_VENUES_BUCKET: Optional[str] = None
     PROCESSED_VENUES_BUCKET: Optional[str] = None
     USER_SETTINGS_BUCKET: Optional[str] = None
+    SEARCH_RESULTS_BUCKET: Optional[str] = None
     # wolt
     VENUES_ENDPOINT: Optional[str] = None
     WOLT_API_BASE: Optional[str] = None

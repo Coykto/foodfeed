@@ -1,5 +1,7 @@
 from os import path
 import os
+from typing import Tuple
+
 import aws_cdk.aws_lambda as lambda_
 import aws_cdk.aws_stepfunctions as sfn
 import aws_cdk.aws_stepfunctions_tasks as tasks
@@ -18,8 +20,9 @@ def setup_search(
     dependency_layer: PythonLayerVersion,
     search_domain: Domain,
     openai_api_key: str,
-) -> sfn.StateMachine:
+) -> Tuple[sfn.StateMachine, s3.Bucket]:
     user_settings_bucket = s3.Bucket(stack, 'userSettings')
+    search_results_bucket = s3.Bucket(stack, 'searchResults')
 
     search = lambda_.Function(
         stack, 'search',
@@ -62,18 +65,21 @@ def setup_search(
     )
     user_settings_bucket.grant_read_write(consult)
 
-    # send_search_result = lambda_.Function(
-    #     stack, 'sendSearchResult',
-    #     runtime=lambda_.Runtime.PYTHON_3_9,
-    #     code=lambda_.AssetCode.from_asset(
-    #         path.join(os.getcwd(), 'python/lambdas/search'),
-    #         exclude=["**", "!send_search_result.py"]
-    #     ),
-    #     environment={},
-    #     handler='send_search_result.lambda_handler',
-    #     tracing=lambda_.Tracing.ACTIVE,
-    #     layers=[dependency_layer]
-    # )
+    save_result = lambda_.Function(
+        stack, 'sendSearchResult',
+        runtime=lambda_.Runtime.PYTHON_3_9,
+        code=lambda_.AssetCode.from_asset(
+            path.join(os.getcwd(), 'python/lambdas/search'),
+            exclude=["**", "!save_result.py"]
+        ),
+        environment={
+            "SEARCH_RESULTS_BUCKET": search_results_bucket.bucket_name,
+        },
+        handler='save_result.lambda_handler',
+        tracing=lambda_.Tracing.ACTIVE,
+        layers=[dependency_layer]
+    )
+    search_results_bucket.grant_write(save_result)
 
     # ========================
     # Search Machine:
@@ -88,16 +94,16 @@ def setup_search(
         lambda_function=consult,
         output_path="$.Payload"
     )
-    # send_result_task = tasks.LambdaInvoke(
-    #     stack, "SendResult",
-    #     lambda_function=send_search_result,
-    # )
+    save_result_task = tasks.LambdaInvoke(
+        stack, "SaveResult",
+        lambda_function=save_result,
+    )
     search_machine = sfn.StateMachine(
         stack, "SearchMachine",
         definition_body=sfn.DefinitionBody.from_chainable(
             search_task
             .next(consult_task)
-            # .next(send_result_task)
+            .next(save_result_task)
         )
     )
-    return search_machine
+    return search_machine, search_results_bucket
