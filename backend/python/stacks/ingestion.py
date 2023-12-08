@@ -96,6 +96,23 @@ def setup_ingestion(
     search_domain.grant_read_write(embedd_and_upload)
     processed_venues_bucket.grant_read(embedd_and_upload)
 
+    enrich = lambda_.Function(
+        stack, 'enrich',
+        runtime=lambda_.Runtime.PYTHON_3_9,
+        code=lambda_.AssetCode.from_asset(
+            os.path.join(os.getcwd(), 'python/lambdas/ingestion'),
+            exclude=["**", "!enrich.py"]
+        ),
+        handler='enrich.lambda_handler',
+        timeout=Duration.seconds(300),
+        environment={
+            "OPENSEARCH_ENDPOINT": search_domain.domain_endpoint,
+            "OPENAI_API_KEY": openai_api_key
+        },
+        tracing=lambda_.Tracing.ACTIVE,
+        layers=[dependency_layer]
+    )
+
     # ========================
     # State Machine Definition:
     # ========================
