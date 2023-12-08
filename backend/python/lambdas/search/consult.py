@@ -1,5 +1,5 @@
 import logging
-from dependency.consultant_client import Consultant
+from dependency.consult_client import Consultant
 from dependency.storage_client import Storage
 from dependency.search_client import Search
 

@@ -131,6 +131,34 @@ class Search:
         )["hits"]["hits"]
         return [hit["_source"] for hit in search_result]
 
+    def get_not_enriched_items(
+        self,
+        index_name: str,
+        size: int = 10
+    ) -> List[dict]:
+        search_result = self.client.search(
+            timeout=60,
+            size=size,
+            index=index_name,
+            body={
+                "_source": {
+                    "excludes": ["vector"]
+                },
+                "query": {
+                    "bool": {
+                        "filter": [
+                            {
+                                "term": {
+                                    "enriched": False
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        )["hits"]["hits"]
+        return [hit["_source"] for hit in search_result]
+
     @classmethod
     def detect_and_translate(cls, query: str, to_lang:str = "en", max_attempts: int = 3, attempt: int = 0):
         try:
