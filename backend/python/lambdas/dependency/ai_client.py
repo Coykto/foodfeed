@@ -82,7 +82,7 @@ class AI:
                     model=enricher_settings["model"]
                 )
             return json.loads(resp)
-        except json.decoder.JSONDecodeError as e:
+        except (json.decoder.JSONDecodeError, ValueError) as e:
             if attempt >= max_attempts:
                 raise Exception(f"{e}. Attempt: {attempt}. Resp: {resp}")
             return self.enrich(

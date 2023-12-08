@@ -39,7 +39,7 @@ class Consultant:
             if not self.wolt.check_venue(venue_slug):
                 raise ImaginedVenue(f"The venue is likely imagined: `{venue_slug}`")
             return ai_response
-        except (json.decoder.JSONDecodeError, ImaginedVenue) as e:
+        except (json.decoder.JSONDecodeError, ImaginedVenue, ValueError) as e:
             attempt += 1
             if attempt > max_attempts:
                 raise e
