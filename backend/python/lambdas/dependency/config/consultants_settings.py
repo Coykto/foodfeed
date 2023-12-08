@@ -9,7 +9,7 @@ consultants = {
             You must pick something that is not in the list of previous orders.
             Once you have picked a meal you will send its slug to the user with a few words on why you picked it
             and the full description of it in JSON format. Your answer should be in the following format: 
-            {{"slug": "meal_slug", "reason": "your reason", "desc": "full order description"}}.
+            {{"slug": "meal_slug", "reason": "your reason", "desc": "full description of the menu item"}}.
             Make sure your reason is in $LANGUAGE language.
             Do not add anything else to the answer since it must be machine-readable."""
     }

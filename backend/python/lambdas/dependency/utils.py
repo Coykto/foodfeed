@@ -1,3 +1,6 @@
+import re
+
+
 def clean_string(input_string):
     if input_string is None:
         return ""
@@ -30,3 +33,10 @@ def generate_full_text(item):
         f"Category: {category} - {category_description}\n"
         f"Venue: {venue}\n - {venue_description}"
     )
+
+
+def clean_float(input_string):
+    pattern = re.compile(r'([-+]?\d*\.\d+|\d+)')
+    numbers = pattern.findall(input_string.split("/")[0])
+    floats = list(map(float, numbers))
+    return sum(floats) / len(floats)

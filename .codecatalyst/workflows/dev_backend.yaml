@@ -1,5 +1,4 @@
 Name: dev_backend
-RunMode: SUPERSEDED
 SchemaVersion: "1.0"
 Triggers:
   - Type: PUSH
@@ -72,7 +71,6 @@ Actions:
       Region: eu-west-1
       Context: >
         {
-          "stack_name": "Backend", 
           "OPENAI_API_KEY": "${Secrets.OPENAI_API_KEY}",
           "TELEGRAM_TOKEN": "${Secrets.TELEGRAM_TOKEN}"
         }

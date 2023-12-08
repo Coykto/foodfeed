@@ -26,13 +26,19 @@ class Storage:
             Body=json.dumps(data)
         )
 
+    def _delete_object(self, bucket: str, key: str):
+        return self.client.delete_object(
+            Bucket=bucket,
+            Key=key
+        )
+
     def get_raw_venue(self, country: str, city: str, venue_slug: str) -> Dict:
         return self._get_object(
             settings.RAW_VENUES_BUCKET,
             f"{country}/{city}/restaurant/{venue_slug}.json"
         )
 
-    def put_raw_venue(self, country: str, city: str, venue_slug: str, data: Union[List[dict], Dict]):
+    def save_raw_venue(self, country: str, city: str, venue_slug: str, data: Union[List[dict], Dict]):
         return self._put_object(
             settings.RAW_VENUES_BUCKET,
             f"{country}/{city}/restaurant/{venue_slug}.json",
@@ -45,7 +51,7 @@ class Storage:
             f"{country}/{city}/restaurant/{venue_slug}.json"
         )
 
-    def put_processed_venue(self, country: str, city: str, venue_slug: str, data: Union[List[dict], Dict]):
+    def save_processed_venue(self, country: str, city: str, venue_slug: str, data: Union[List[dict], Dict]):
         return self._put_object(
             settings.PROCESSED_VENUES_BUCKET,
             f"{country}/{city}/restaurant/{venue_slug}.json",
@@ -62,13 +68,32 @@ class Storage:
             if e.response['Error']['Code'] == 'NoSuchKey':
                 default_settings = user_settings
                 default_settings["user_id"] = user_id
-                self.put_user_settings(user_id, default_settings)
+                self.save_user_settings(user_id, default_settings)
                 return default_settings
             raise e
 
-    def put_user_settings(self, user_id: str, data: Dict):
+    def save_user_settings(self, user_id: str, data: Dict):
         return self._put_object(
             settings.USER_SETTINGS_BUCKET,
             f"{user_id}_settings.json",
             data
+        )
+
+    def get_search_result(self, user_id: str) -> Dict:
+        return self._get_object(
+            settings.SEARCH_RESULTS_BUCKET,
+            f"{user_id}_search_result.json"
+        )
+
+    def save_search_result(self, user_id: str, data: Dict):
+        return self._put_object(
+            settings.SEARCH_RESULTS_BUCKET,
+            f"{user_id}_search_result.json",
+            data
+        )
+
+    def delete_search_result(self, user_id: str):
+        return self._delete_object(
+            settings.SEARCH_RESULTS_BUCKET,
+            f"{user_id}_search_result.json"
         )

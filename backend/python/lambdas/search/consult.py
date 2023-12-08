@@ -1,7 +1,6 @@
 import logging
-from dependency.consultant_client import Consultant
+from dependency.consult_client import Consultant
 from dependency.storage_client import Storage
-from dependency.utils import clean_string
 from dependency.search_client import Search
 
 
@@ -23,7 +22,7 @@ def lambda_handler(event, context):
 
     item_url = f"https://wolt.com/en/geo/tbilisi/venue/{consultation['slug']}"
     reason = consultation["reason"]
-    desc, _ = Search.detect_and_translate(clean_string(consultation["desc"]))
+    desc, _ = Search.detect_and_translate(consultation["desc"])
 
     if len(user_settings["previous_orders"]) >= user_settings["previous_orders_max_length"]:
         user_settings["previous_orders"] = user_settings["previous_orders"][1:] + [{"desc": desc}]
@@ -31,7 +30,7 @@ def lambda_handler(event, context):
         user_settings["previous_orders"].append({"desc": desc})
 
     storage = Storage()
-    storage.put_user_settings(user_id=user_id, data=user_settings)
+    storage.save_user_settings(user_id=user_id, data=user_settings)
 
     return {
         "url": item_url,

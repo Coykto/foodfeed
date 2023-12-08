@@ -42,13 +42,52 @@ class AI:
                 attempt + 1
             )
 
-    def chat(self, primer, query):
+    def chat(self, primer, user_content, model: str = "gpt-4"):
         res = self.client.chat.completions.create(
-            model="gpt-4",
+            model=model,
             messages=[
                 {"role": "system", "content": primer},
-                {"role": "user", "content": query}
+                {"role": "user", "content": user_content}
             ],
             temperature=0.7
         )
         return res.choices[0].message.content
+
+    def enrich(
+        self,
+        item_full_text: str,
+        item_url: str,
+        enricher_settings: dict,
+        max_attempts: int = 3,
+        attempt: int = 0,
+    ) -> dict:
+        try:
+            return json.loads(
+                self.chat(
+                    primer=enricher_settings["primer"],
+                    user_content=[
+                        {
+                            "type": "text",
+                            "text": item_full_text,
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": item_url,
+                                "detail": "low"
+                            },
+                        },
+                    ],
+                    model=enricher_settings["model"]
+                )
+            )
+        except json.decoder.JSONDecodeError as e:
+            if attempt >= max_attempts:
+                raise e
+            return self.enrich(
+                item_full_text,
+                item_url,
+                enricher_settings,
+                max_attempts,
+                attempt + 1
+            )
