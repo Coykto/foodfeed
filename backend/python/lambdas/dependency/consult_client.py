@@ -34,7 +34,7 @@ class Consultant:
 
     def _consult_ai(self, primer, query, max_attempts: int = 3, attempt: int = 0):
         try:
-            ai_response = json.loads(self.ai.chat(primer, query))
+            ai_response = self.ai.chat(primer, query)
             venue_slug = ai_response["slug"].split("/")[0]
             if not self.wolt.check_venue(venue_slug):
                 raise ImaginedVenue(f"The venue is likely imagined: `{venue_slug}`")

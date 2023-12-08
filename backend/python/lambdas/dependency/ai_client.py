@@ -3,6 +3,7 @@ from typing import List
 
 import openai
 from .config.settings import settings
+from .utils import find_json
 
 
 class AI:
@@ -51,7 +52,7 @@ class AI:
             ],
             temperature=0.7
         )
-        return res.choices[0].message.content
+        return find_json(res.choices[0].message.content)
 
     def enrich(
         self,

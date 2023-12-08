@@ -1,3 +1,4 @@
+import json
 import re
 
 
@@ -15,6 +16,14 @@ def clean_string(input_string):
 
 def clean_tags(tags):
     return [clean_string(tag["name"]).lower() for tag in tags]
+
+
+def find_json(input_string: str):
+    if input_string is None:
+        return {}
+    open_bracket_idx = input_string.index("{")
+    close_bracket_idx = input_string.rindex("}")
+    return json.loads(input_string[open_bracket_idx:close_bracket_idx + 1])
 
 
 def generate_full_text(item):
