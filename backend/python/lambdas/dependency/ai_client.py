@@ -61,9 +61,9 @@ class AI:
         max_attempts: int = 3,
         attempt: int = 0,
     ) -> dict:
+        resp = None
         try:
-            return json.loads(
-                self.chat(
+            resp = self.chat(
                     primer=enricher_settings["primer"],
                     user_content=[
                         {
@@ -80,10 +80,10 @@ class AI:
                     ],
                     model=enricher_settings["model"]
                 )
-            )
+            return json.loads(resp)
         except json.decoder.JSONDecodeError as e:
             if attempt >= max_attempts:
-                raise e
+                raise Exception(f"{e}. Attempt: {attempt}. Resp: {resp}")
             return self.enrich(
                 item_full_text,
                 item_url,
