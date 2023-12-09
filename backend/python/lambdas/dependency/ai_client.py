@@ -58,7 +58,7 @@ class AI:
             temperature=0.7
         )
         if model != "gpt-4":
-            logger.info(f"{res.choices[0].message.corpus}")
+            logger.info(f"{res.choices[0].message.content}")
         return find_json(res.choices[0].message.content)
 
     def enrich(
