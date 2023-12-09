@@ -4,6 +4,11 @@ from typing import List
 import openai
 from .config.settings import settings
 from .utils import find_json
+import logging
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class AI:
@@ -52,6 +57,8 @@ class AI:
             ],
             temperature=0.7
         )
+        if model != "gpt-4":
+            logger.info(f"{res.choices[0].message.corpus}")
         return find_json(res.choices[0].message.content)
 
     def enrich(
@@ -81,6 +88,7 @@ class AI:
                     ],
                     model=enricher_settings["model"]
                 )
+
             return json.loads(resp)
         except (json.decoder.JSONDecodeError, ValueError) as e:
             if attempt >= max_attempts:
