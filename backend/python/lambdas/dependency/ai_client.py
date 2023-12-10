@@ -11,6 +11,10 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+class AIRateLimitExceeded(Exception):
+    pass
+
+
 class AI:
     def __init__(self):
         self.client = openai.Client(api_key=settings.OPENAI_API_KEY)
@@ -30,6 +34,9 @@ class AI:
 
     def embedd_query(self, query: str) -> List[float]:
         return self._embedd([{"query": query}], "query")[0]
+
+    def embedd_item(self, item: dict) -> List[float]:
+        return self._embedd([item], "full_description")
 
     def _embedd(self, items, embedd_field, max_attempts: int = 3, attempt: int = 0):
         try:
@@ -57,6 +64,8 @@ class AI:
             ],
             temperature=0.7
         )
+        if res.status_code == 429:
+            raise AIRateLimitExceeded(res)
         if model != "gpt-4":
             logger.info(f"{res.choices[0].message.content}")
         return find_json(res.choices[0].message.content)
@@ -88,7 +97,6 @@ class AI:
                     ],
                     model=enricher_settings["model"]
                 )
-
             return json.loads(resp)
         except (json.decoder.JSONDecodeError, ValueError) as e:
             if attempt >= max_attempts:

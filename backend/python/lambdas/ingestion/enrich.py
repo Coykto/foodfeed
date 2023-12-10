@@ -8,7 +8,7 @@ logger.setLevel(logging.INFO)
 
 from dependency.utils import clean_float
 from dependency.search_client import Search
-from dependency.ai_client import AI
+from dependency.ai_client import AI, AIRateLimitExceeded
 from dependency.config.enricher_settings import enricher_settings
 
 
@@ -31,25 +31,32 @@ def lambda_handler(event, context):
             'body': {'message': "no items to enrich"}
         }
 
-    for item in not_enriched_items:
-        enriched_item = ai.enrich(
-            item_full_text=item["full_description"],
-            item_url=item["image"],
-            enricher_settings=enricher_settings
-        )
-        enriched_item["full_description"] = (
-            f"{enriched_item['full_description']}/n"
-            f"Full description: {enriched_item['extended_description']}"
-        )
-        enriched_item["enriched"] = True
-        for float_key in enricher_settings["float_keys"]:
-            enriched_item[float_key] = clean_float(enriched_item[float_key])
+    try:
 
-        item.update(enriched_item)
+        for item in not_enriched_items:
+            enriched_item = ai.enrich(
+                item_full_text=item["full_description"],
+                item_url=item["image"],
+                enricher_settings=enricher_settings
+            )
+            enriched_item["full_description"] = (
+                f"{enriched_item['full_description']}/n"
+                f"Full description: {enriched_item['extended_description']}"
+            )
+            enriched_item["enriched"] = True
+            for float_key in enricher_settings["float_keys"]:
+                enriched_item[float_key] = clean_float(enriched_item[float_key])
 
-    enriched_items = ai.embedd_items(not_enriched_items, "full_description", True)
-
-    search.bulk(index_name, enriched_items)
+            item.update(enriched_item)
+            item["vector"] = ai.embedd_item(item)
+            search.index(index_name, item)
+    except AIRateLimitExceeded as e:
+        return {
+            'statusCode': 429,
+            'body': {
+                'message': f"Rate limit exceeded: {e}"
+            }
+        }
 
     # lambda_client = boto3.client('lambda')
     # lambda_client.invoke(

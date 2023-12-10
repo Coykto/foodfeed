@@ -37,6 +37,10 @@ class Search:
     def bulk(self, index_name: str, items: List[dict]) -> None:
         self.client.bulk(self._create_bulk(index_name, items))
 
+    def index(self, index_name: str, item: dict) -> None:
+        item_id = item.pop("id")
+        self.client.index(index_name=index_name, id=item_id, body=item)
+
     def doc_exists(self, index_name: str, field: str, value: str) -> bool:
         docs_count = self.client.search(
             timeout=60,
