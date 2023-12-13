@@ -11,10 +11,6 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-class AIRateLimitExceeded(Exception):
-    pass
-
-
 class AI:
     def __init__(self):
         self.client = openai.Client(api_key=settings.OPENAI_API_KEY)
@@ -64,10 +60,6 @@ class AI:
             ],
             temperature=0.7
         )
-        if res.status_code == 429:
-            raise AIRateLimitExceeded(res)
-        if model != "gpt-4":
-            logger.info(f"{res.choices[0].message.content}")
         return find_json(res.choices[0].message.content)
 
     def enrich(

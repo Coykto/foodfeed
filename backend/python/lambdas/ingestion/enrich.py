@@ -2,7 +2,7 @@ import json
 import logging
 
 import boto3
-
+from openai import RateLimitError
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -55,7 +55,7 @@ def lambda_handler(event, context):
             search.index(index_name, item)
 
             enriched_items_count += 1
-    except AIRateLimitExceeded as e:
+    except RateLimitError as e:
         return {
             'statusCode': 429,
             'body': {
