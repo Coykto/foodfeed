@@ -65,7 +65,9 @@ class AI:
             temperature=0.7,
             **response_format
         )
-        return find_json(res.choices[0].message.content)
+        response_content = res.choices[0].message.content
+        logger.info(response_content)
+        return find_json(response_content)
 
     def enrich(
         self,
