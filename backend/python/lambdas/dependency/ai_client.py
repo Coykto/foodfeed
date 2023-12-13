@@ -35,8 +35,8 @@ class AI:
     def embedd_query(self, query: str) -> List[float]:
         return self._embedd([{"query": query}], "query")[0]
 
-    def embedd_item(self, item: dict) -> List[float]:
-        return self._embedd([item], "full_description")
+    def embedd_item(self, item: dict, embedd_field: str = "full_description") -> List[float]:
+        return self._embedd([item], embedd_field)
 
     def _embedd(self, items, embedd_field, max_attempts: int = 3, attempt: int = 0):
         try:

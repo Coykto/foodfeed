@@ -20,9 +20,11 @@ def lambda_handler(event, context):
     search = Search()
     ai = AI()
 
+    enrichment_batch_size = 10
+
     not_enriched_items = search.get_not_enriched_items(
         index_name=index_name,
-        size=10
+        size=enrichment_batch_size
     )
 
     if not not_enriched_items:
@@ -31,8 +33,9 @@ def lambda_handler(event, context):
             'body': {'message': "no items to enrich"}
         }
 
-    try:
+    enriched_items_count = 0
 
+    try:
         for item in not_enriched_items:
             enriched_item = ai.enrich(
                 item_full_text=item["full_description"],
@@ -50,6 +53,8 @@ def lambda_handler(event, context):
             item.update(enriched_item)
             item["vector"] = ai.embedd_item(item)
             search.index(index_name, item)
+
+            enriched_items_count += 1
     except AIRateLimitExceeded as e:
         return {
             'statusCode': 429,
@@ -57,17 +62,27 @@ def lambda_handler(event, context):
                 'message': f"Rate limit exceeded: {e}"
             }
         }
+    except Exception as e:
+        logger.exception(e)
 
-    # lambda_client = boto3.client('lambda')
-    # lambda_client.invoke(
-    #     FunctionName=context.function_name,
-    #     InvocationType='Event',
-    #     Payload=json.dumps(event)
-    # )
+        if enriched_items_count == 0:
+            return {
+                'statusCode': 500,
+                'body': {
+                    'message': f"Failed to enrich items: {e}"
+                }
+            }
+
+        lambda_client = boto3.client('lambda')
+        lambda_client.invoke(
+            FunctionName=context.function_name,
+            InvocationType='Event',
+            Payload=json.dumps(event)
+        )
 
     return {
         'statusCode': 200,
         'body': {
-            'message': f"enriched {len(enriched_items)} items: {', '.join([item['id'] for item in enriched_items])}"
+            'message': f"enriched {enriched_items_count} items"
         }
     }
