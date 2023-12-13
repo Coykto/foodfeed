@@ -53,6 +53,7 @@ class AI:
 
     def chat(self, primer, user_content, model: str = "gpt-4"):
         res = self.client.chat.completions.create(
+            response_format={"type": "json_object"},
             model=model,
             messages=[
                 {"role": "system", "content": primer},
