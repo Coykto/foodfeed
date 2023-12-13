@@ -51,15 +51,19 @@ class AI:
                 attempt + 1
             )
 
-    def chat(self, primer, user_content, model: str = "gpt-4"):
+    def chat(self, primer, user_content, model: str = "gpt-4-1106-preview"):
+        response_format = {
+            "response_format": {"type": "json_object"}
+        } if model == "gpt-4-1106-preview" else {}
+
         res = self.client.chat.completions.create(
-            response_format={"type": "json_object"},
             model=model,
             messages=[
                 {"role": "system", "content": primer},
                 {"role": "user", "content": user_content}
             ],
-            temperature=0.7
+            temperature=0.7,
+            **response_format
         )
         return find_json(res.choices[0].message.content)
 
