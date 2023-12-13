@@ -8,7 +8,7 @@ logger.setLevel(logging.INFO)
 
 from dependency.utils import clean_float
 from dependency.search_client import Search
-from dependency.ai_client import AI, AIRateLimitExceeded
+from dependency.ai_client import AI
 from dependency.config.enricher_settings import enricher_settings
 
 
