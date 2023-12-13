@@ -3,6 +3,7 @@ import logging
 
 import boto3
 from openai import RateLimitError
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -16,11 +17,12 @@ def lambda_handler(event, context):
     country = "geo"
     city = "tbilisi"
     index_name = f"{country}.{city}.food"
+    logger.info("WTF?")
 
     search = Search()
     ai = AI()
 
-    enrichment_batch_size = 10
+    enrichment_batch_size = 1
 
     not_enriched_items = search.get_not_enriched_items(
         index_name=index_name,
@@ -42,6 +44,7 @@ def lambda_handler(event, context):
                 item_url=item["image"],
                 enricher_settings=enricher_settings
             )
+            logger.info(f"Enriched item {item['id']}")
             enriched_item["full_description"] = (
                 f"{enriched_item['full_description']}/n"
                 f"Full description: {enriched_item['extended_description']}"
@@ -50,8 +53,13 @@ def lambda_handler(event, context):
             for float_key in enricher_settings["float_keys"]:
                 enriched_item[float_key] = clean_float(enriched_item[float_key])
 
+            logger.info(f"Cleaned floats for {item['id']}")
+
             item.update(enriched_item)
+            logger.info(f"About to embedd_item {item['id']}")
             item["vector"] = ai.embedd_item(item)
+
+            logger.info(f"About to enrich item: {item['id']} in {index_name}")
             search.index(index_name, item)
 
             enriched_items_count += 1

@@ -142,9 +142,9 @@ class Search:
     ) -> List[dict]:
         search_result = self.client.search(
             timeout=60,
-            size=size,
             index=index_name,
             body={
+                "size": size,
                 "_source": {
                     "excludes": ["vector"]
                 },
