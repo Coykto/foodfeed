@@ -161,7 +161,8 @@ class Search:
                 }
             }
         )["hits"]["hits"]
-        _ = [hit["_source"].update({"id": hit["_id"]}) for hit in search_result]
+        for hit in search_result:
+            hit["_source"]["id"] = hit["_id"]
         return [hit["_source"] for hit in search_result]
 
     @classmethod
