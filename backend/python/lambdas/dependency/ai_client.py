@@ -66,6 +66,7 @@ class AI:
             **response_format
         )
         response_content = res.choices[0].message.content
+        response_content = response_content.replace("\n", " ")
         logger.info(response_content)
         return find_json(response_content)
 
@@ -79,7 +80,7 @@ class AI:
     ) -> dict:
         resp = None
         try:
-            resp = self.chat(
+            return self.chat(
                     primer=enricher_settings["primer"],
                     user_content=[
                         {
@@ -96,7 +97,6 @@ class AI:
                     ],
                     model=enricher_settings["model"]
                 )
-            return json.loads(resp)
         except (json.decoder.JSONDecodeError, ValueError) as e:
             if attempt >= max_attempts:
                 raise Exception(f"{e}. Attempt: {attempt}. Resp: {resp}")
