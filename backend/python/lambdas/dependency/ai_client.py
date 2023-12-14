@@ -56,12 +56,16 @@ class AI:
             "response_format": {"type": "json_object"}
         } if model == "gpt-4-1106-preview" else {}
 
+        messages = [
+            {"role": "system", "content": primer},
+            {"role": "user", "content": user_content}
+        ]
+        messages_string = json.dumps(messages, indent=2).replace("\n", " ")
+        logger.info(f"REQUEST: {messages_string}")
+
         res = self.client.chat.completions.create(
             model=model,
-            messages=[
-                {"role": "system", "content": primer},
-                {"role": "user", "content": user_content}
-            ],
+            messages=messages,
             temperature=0.7,
             **response_format
         )
