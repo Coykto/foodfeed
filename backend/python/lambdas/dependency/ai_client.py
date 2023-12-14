@@ -53,7 +53,7 @@ class AI:
 
     def chat(self, primer, user_content, model: str = "gpt-4-1106-preview"):
         response_format = {
-            "response_format": {"type": "json_object"}
+            "response_format": {"type": "json_object"},
         } if model == "gpt-4-1106-preview" else {}
 
         messages = [
@@ -67,6 +67,7 @@ class AI:
             model=model,
             messages=messages,
             temperature=0.7,
+            max_tokens=800,
             **response_format
         )
         response_content = res.choices[0].message.content

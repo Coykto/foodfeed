@@ -22,7 +22,7 @@ def lambda_handler(event, context):
     search = Search()
     ai = AI()
 
-    enrichment_batch_size = 1
+    enrichment_batch_size = 10
 
     not_enriched_items = search.get_not_enriched_items(
         index_name=index_name,
@@ -43,7 +43,6 @@ def lambda_handler(event, context):
                 item_full_text=item["full_description"],
                 item_url=item["image"],
                 enricher_settings=enricher_settings,
-                max_attempts=1
             )
             logger.info(f"Enriched item {item['id']}")
             enriched_item["full_description"] = (
