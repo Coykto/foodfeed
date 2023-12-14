@@ -82,12 +82,12 @@ def lambda_handler(event, context):
                 }
             }
 
-    lambda_client = boto3.client('lambda')
-    lambda_client.invoke(
-        FunctionName=context.function_name,
-        InvocationType='Event',
-        Payload=json.dumps(event)
-    )
+    # lambda_client = boto3.client('lambda')
+    # lambda_client.invoke(
+    #     FunctionName=context.function_name,
+    #     InvocationType='Event',
+    #     Payload=json.dumps(event)
+    # )
 
     return {
         'statusCode': 200,
