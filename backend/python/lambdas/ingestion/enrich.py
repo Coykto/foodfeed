@@ -42,7 +42,8 @@ def lambda_handler(event, context):
             enriched_item = ai.enrich(
                 item_full_text=item["full_description"],
                 item_url=item["image"],
-                enricher_settings=enricher_settings
+                enricher_settings=enricher_settings,
+                max_attempts=1
             )
             logger.info(f"Enriched item {item['id']}")
             enriched_item["full_description"] = (
