@@ -1,130 +1,156 @@
-## Project overview
+# Food Recommendation Bot
 
-This project is a "To Do" single-page application.  It is meant to be extensible after creation to meet your team's requirements.
+A Telegram bot powered by AI that helps users find optimal food choices based on their preferences and dietary restrictions.
 
-## Architecture overview
+## Overview
 
-This project is composed of 2 main components: 
-* the Backend that expose a REST CRUD API to manage ToDo items
-* the Frontend that expose a Web Interface interacting with the REST API
+This project uses a serverless architecture on AWS to provide personalized food recommendations through a Telegram bot interface. The system integrates with Wolt's delivery platform to fetch restaurant and menu data, enriches it with AI-generated nutritional information, and allows users to search for food through natural language queries.
+
+## Architecture
+
+The system follows a serverless architecture on AWS:
+
+- **Data Ingestion**: Fetches restaurant and menu data from Wolt API
+- **Data Processing**: Enriches the data with OpenAI's vision and language models
+- **Search**: Vector-based food search with OpenSearch
+- **Recommendation**: AI consultant that matches user preferences with available food options
+- **Interface**: Telegram bot for user interaction
+
+## Tech Stack
 
 ### Backend
+- Python 3.9
+- AWS CDK for infrastructure as code
+- AWS Lambda for serverless functions
+- AWS Step Functions for workflow orchestration
+- Amazon OpenSearch for vector search
+- S3 for storing venue and user data
+- API Gateway for REST API
+- OpenAI API for content enrichment and recommendations
+- Telegram Bot API for user interface
 
-The ToDo backend is deployed as a RESTful API using AWS Serverless technologies:
-- [AWS API Gateway](https://aws.amazon.com/api-gateway) to provide the REST interface to the persistence layer
-- [Amazon DynamoDB](https://aws.amazon.com/dynamodb) for list persistence
-- [AWS Lambda](https://aws.amazon.com/lambda) provides the glue between the two.
+### Frontend (Planned)
+- React 17 with TypeScript (configuration exists but implementation not started)
+- Cloudscape Design components
+- AWS CDK for infrastructure
 
-The [AWS Cloud Development Kit (CDK)](https://aws.amazon.com/cdk) provides the infrastructure-as-code used to deploy to a live AWS environment.  You can find all of the above under the '/backend' folder in the CodeCatalyst repository.
-
-The code in the `backend` folder includes unit test cases that can be run using your development environment.  All code artifacts in the backend folder can be extended to meet your needs.
-
-Deployment instruction can be found in the [backend/README.md](./backend/README.md) file.
-
-### Frontend
-
-The frontend application is based on [ReactJS 17](https://reactjs.org) and TypeScript. The user interface uses [CloudScape](https://cloudscape.design) components and stylesheets.
-
-The frontend is built and deployed using AWS CDK.  The deployment includes Amazon S3+CloudFront
-
-The build pipeline runs unit and integration tests on the frontend and backend, and produces testing reports.  Failed tests will stop the artifacts from publishing.  Front end code is compiled and optimized for production deployment. The [Amazon CloudFront](https://aws.amazon.com/cloudfront) content delivery network is used to pull both the frontend and backend together under a single logical internet-accessible domain under the AWS account that is connected.  Amazon Cloudfront provides HTTPS support for the domain as well as forward caching for the front-end.
-
-
-Deployment instruction can be found in the [frontend/README.md](./frontend/README.md) file.
-
-## Connections and permissions
-
-The `"To Do" single-page application` supports the Amazon CodeCatalyst Development Role, which can be created from the [AWS management console Codecatalyst application](https://us-west-2.console.aws.amazon.com/codecatalyst/home?region=us-west-2#/). When clicking “add IAM role”, the first option is to create a CodeCatalyst development role. After clicking create, the role will be automatically added to the Amazon CodeCatalyst space. 
-
-The other option is creating a application specific IAM role, which can be added to the Amazon CodeCatalyst space by selecting "Add an existing IAM role" from the add IAM role options. The IAM role needs to contain the CodeCatalyst trust policy, as well as the following permissions:
+## Project Structure
 
 ```
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "cloudformation:*",
-                "ssm:*",
-                "s3:*",
-                "iam:PassRole",
-                "iam:GetRole",
-                "iam:CreateRole",
-                "iam:AttachRolePolicy",
-                "iam:PutRolePolicy"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
+.
+├── frontend/                 # React frontend scaffolding (not implemented)
+│   ├── package.json          # Frontend dependencies
+│   ├── tsconfig.json         # TypeScript configuration
+│   └── cdk/                  # CDK code for frontend deployment
+│
+└── backend/                  # Python backend serverless application
+    ├── app.py                # CDK application entry point
+    ├── python/               # Backend code
+    │   ├── python_stack.py   # Main stack definition
+    │   ├── stacks/           # CDK stack modules
+    │   └── lambdas/          # Lambda function code
+    │       ├── dependency/   # Shared libraries
+    │       │   ├── ai_client.py           # OpenAI API integration
+    │       │   ├── consult_client.py      # Recommendation logic
+    │       │   ├── search_client.py       # Vector search
+    │       │   ├── storage_client.py      # S3 storage
+    │       │   └── wolt_client.py         # Wolt API integration
+    │       ├── ingestion/    # Data ingestion functions
+    │       ├── search/       # Search functions
+    │       └── telegram/     # Telegram bot functions
+    └── tests/                # Test code
+        ├── unit/             # Unit tests
+        └── integ/            # Integration tests
 ```
 
-The IAM roles also require the Amazon CodeCatalyst service principals `codecatalyst.amazonaws.com` and `codecatalyst-runner.amazonaws.com`.
+## Features
 
-### Required IAM role trust policy:
+- **AI-Powered Food Analysis**: Enriches food items with calorie count, nutritional information, and detailed descriptions using OpenAI
+- **Personalized Recommendations**: Takes into account dietary preferences, previous orders, and budget
+- **Conversational Interface**: Easy-to-use Telegram bot interface
+- **Vector-Based Search**: Find food based on semantic similarity to natural language queries
+- **Real-Time Data**: Integration with Wolt's delivery platform for up-to-date menu information
 
-```
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "",
-            "Effect": "Allow",
-            "Principal": {
-                "Service": [
-                    "codecatalyst.amazonaws.com",
-                    "codecatalyst-runner.amazonaws.com"
-                ]
-            },
-            "Action": "sts:AssumeRole"
-        }
-    ]
-}
-```
+## Getting Started
 
-## Project details
+### Prerequisites
 
-### Resources
-The following resources have been generated and initial revisions can be modified
-- CodeCatalyst workflows defined in ``.codecatalyst/workflows/``
-- Backend business logic under `/backend/lambda`
-- Backend unit/e2e test cases under `/backend/test`
-- Backend CDK stack definitions under `/backend/bin` and `/backend/lib`
-- Frontend project under `/frontend`
-- Frontend IaC under `/frontend/cdk`
+- AWS Account
+- AWS CLI configured
+- Python 3.9
+- OpenAI API Key
+- Telegram Bot Token
 
-### Deployment environment
+### Backend Setup
 
-This project will deploy the following AWS resources after being successfuly created. The deployment status can be viewed in the project's workflow:
+1. Clone the repository
 
-- Amazon DynamoDB table based on input name
-- Amazon Lambda functions to handle backend transactions
-- Amazon API Gateway REST API with given name
-- Amazon S3 bucket for storing compiled frontend artifacts
-- A single Amazon CloudFront distribution with origins for Frontend and Backend (`/api`)
-
-
-
-### Cleaning up resources
-
-1. Clean up deployed infrastructure
-    1. Set credentials locally to access linked AWS Account
-    1. Trigger the destruction of resources using AWS CDK CLI running `cdk destroy` from each project subfolders (`backend` and `frontend/cdk`)
-1. Clean CodeCatalyst project by going to **Project settings** and click **Delete project**
-
-
-
-### Adding a resource to your application
-
-This project leverage AWS CDK and therfore can easily be extended by updating AWS CDK code.
-
-## Additional resources
-
-See the Amazon CodeCatalyst user guide for additional information on using the features and resources of Amazon CodeCatalyst.
-
-## Useful things
-After adding dependency to poetry, recreate requirements.txt with:
 ```bash
-poetry run pip freeze > backend/requirements.txt
+git clone https://github.com/your-organization/food-recommendation-bot.git
+cd food-recommendation-bot
 ```
+
+2. Setup Python environment
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+3. Deploy the backend infrastructure
+
+```bash
+cdk deploy --context OPENAI_API_KEY=your-openai-api-key --context TELEGRAM_TOKEN=your-telegram-token
+```
+
+## Deployment
+
+The backend is deployed as a CDK stack:
+
+```bash
+cd backend
+cdk deploy
+```
+
+## Usage
+
+### Telegram Bot
+
+Users can interact with the system via Telegram:
+
+1. Search for the bot by its username
+2. Start a conversation with the bot
+3. Send food preferences or dietary restrictions
+4. Get personalized recommendations with direct links to order
+
+### Example Interactions
+
+- "I want something healthy with chicken"
+- "Looking for a vegetarian option under 20 GEL"
+- "Recommend me a high protein meal"
+
+## Development
+
+### Running Tests
+
+```bash
+# Backend tests
+cd backend
+pytest
+```
+
+## How It Works
+
+1. **Data Ingestion**: The system periodically fetches restaurant and menu data from Wolt's API.
+2. **Enrichment**: AI models analyze each food item to extract nutritional information and create detailed descriptions.
+3. **Vector Embedding**: Food descriptions are converted to vector embeddings for semantic search.
+4. **User Interaction**: Users send natural language queries through Telegram.
+5. **Recommendation**: The system matches user preferences against available options and provides personalized recommendations.
+
+## Future Development
+
+- Implement the planned React frontend for a web interface
+- Add support for more delivery services
+- Enhance recommendation algorithm with more personalization options
